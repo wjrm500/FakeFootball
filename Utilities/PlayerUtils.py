@@ -42,18 +42,21 @@ def showPredictedRatings(player):
     plt.show()
 
 def showSkillDistribution(player):
-    ### TODO: Create generic RadarChart function in a GraphUtils file, capable of generating a radar chart from any set of items
-
-    ### Turn items in a player's skill distribution dictionary into local variables
-    n = SimpleNamespace(**player.skillDistribution)
-
+    frameSize = 2.5
     ### Calculate vertices
-    points = {
-        'offence': {'x': 0         , 'y': n.offence },
-        'spark'  : {'x': n.spark   , 'y': 0         },
-        'defence': {'x': 0         , 'y': -n.defence},
-        'control': {'x': -n.control, 'y': 0         }
-    } 
+    skills = player.skillDistribution
+    points = {}
+    for i, (skill, value) in enumerate(skills.items()):
+        angle = 2 / len(skills) * i * np.pi
+        pointX = value * np.sin(angle)
+        sidePointX = frameSize * np.sin(angle)
+        pointY = value * np.cos(angle)
+        sidePointY = frameSize * np.cos(angle)
+        labelX = (value + 0.375) * np.sin(angle)
+        labelY = (value + 0.375) * np.cos(angle)
+        points[skill] = {'x': pointX, 'y': pointY}
+        plt.plot((0, sidePointX), (0, sidePointY), color = 'red', linewidth = 0.25)
+        plt.text(labelX, labelY, "{0}\n{1:.1%}".format(skill, value), horizontalalignment = 'center', verticalalignment = 'center', fontdict = {'size': 8})
     pointsList = list(points.values())
     pointsList.append(pointsList[0]) ### Duplicate first point as last point to complete the shape
 
@@ -69,29 +72,20 @@ def showSkillDistribution(player):
     xPoints = [point['x'] for point in pointsList]
     yPoints = [point['y'] for point in pointsList]
     plt.fill(xPoints, yPoints, color = 'lightgray') ### TODO: Different colours for different positions? Variable colour based on skills e.g. more red for offence, more blue for defence, darker for more control, lighter for more spark?
-    
-    ### Add labels
-    plt.text(0, n.offence + 0.3, "{0:.0%}".format(n.offence), horizontalalignment = 'center')
-    plt.text(0, n.offence + 0.1, 'Offence', horizontalalignment = 'center')
-    plt.text(n.spark + 0.1, 0.05, "{0:.0%}".format(n.spark), horizontalalignment = 'left')
-    plt.text(n.spark + 0.1, -0.15, 'Spark', horizontalalignment = 'left')
-    plt.text(0, -n.defence - 0.25, "{0:.0%}".format(n.defence), horizontalalignment = 'center')
-    plt.text(0, -n.defence - 0.45, 'Defence', horizontalalignment = 'center')
-    plt.text(-n.control - 0.1, 0.05, "{0:.0%}".format(n.control), horizontalalignment = 'right')
-    plt.text(-n.control - 0.1, -0.15, 'Control', horizontalalignment = 'right')
 
     ### Frame plot
-    plt.plot((-2, 2), (2, 2), color = "lightgray")
-    plt.plot((2, 2), (-2, 2), color = "lightgray")
-    plt.plot((-2, 2), (-2, -2), color = "lightgray")
-    plt.plot((-2, -2), (-2, 2), color = "lightgray")
+    plt.plot((-frameSize, frameSize), (frameSize, frameSize), color = "lightgray")
+    plt.plot((frameSize, frameSize), (-frameSize, frameSize), color = "lightgray")
+    plt.plot((-frameSize, frameSize), (-frameSize, -frameSize), color = "lightgray")
+    plt.plot((-frameSize, -frameSize), (-frameSize, frameSize), color = "lightgray")
 
     ### Miscellaneous config
-    # plt.plot(0, 0, 'o', color = 'black')
-    plt.text(0, 0, player.bestPosition, horizontalalignment = 'center')
+    bestPositionText = player.config['positions'][player.bestPosition]['realName']
+    bestPositionText = bestPositionText.replace(' ', '\n')
+    plt.text(0, 0, bestPositionText, horizontalalignment = 'center', verticalalignment = 'center', fontdict = {'size': 10, 'weight': 'bold'})
     plt.axis('off')
-    plt.xlim(-2, 2)
-    plt.ylim(-2, 2)
+    plt.xlim(-frameSize, frameSize)
+    plt.ylim(-frameSize, frameSize)
     plt.title(
         'Skill distribution for {}'.format(player.name),
         fontdict = {

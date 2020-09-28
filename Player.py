@@ -75,44 +75,62 @@ class Player:
         return self.peakRating * peakRatingFulfillment
     
     def setSkillDistribution(self):
-        skills = ['offence', 'spark', 'defence', 'control']
-        mu = self.config['skillDistribution']['mean']
-        sigma = self.config['skillDistribution']['stDev']
-        skillDistribution = {skill: np.random.normal(mu, sigma) for skill in skills}
+        skills = self.config['skill']['skills']
+        [skDiMu, skDiSigma, skDiMin, skDiMax] = [value for value in self.config['skill']['distribution'].values()]
+        skillDistribution = {skill: Utils.limitValue(np.random.normal(skDiMu, skDiSigma), skDiMin, skDiMax) for skill in skills}
         totalSkill = sum(skillDistribution.values())
         for key, value in skillDistribution.items():
-            skillDistribution[key] = value * 4 / totalSkill
+            skillDistribution[key] = value * len(skills) / totalSkill
 
-        ### With age, spark decreases and control increases
+        ### With age, spark decreases and authority increases
         distanceFromPeakAge = self.peakAge - self.age
-        sparkControlSum = skillDistribution['spark'] + skillDistribution['control']
-        sparkFactor = skillDistribution['spark'] / sparkControlSum
-        sparkFactor += (distanceFromPeakAge / 100)
-        controlFactor = 1 - sparkFactor
-        skillDistribution['spark'] = sparkControlSum * sparkFactor
-        skillDistribution['control'] = sparkControlSum * controlFactor
+        sparkAuthoritySum = skillDistribution['spark'] + skillDistribution['authority']
+        sparkFactor = skillDistribution['spark'] / sparkAuthoritySum
+        sparkFactor += (distanceFromPeakAge / 250)
+        skillDistribution['spark'] = sparkAuthoritySum * sparkFactor
+        authorityFactor = 1 - sparkFactor
+        skillDistribution['authority'] = sparkAuthoritySum * authorityFactor
+
+        ### Fitness drops when player passes peak age
+        totalSkill = sum(skillDistribution.values())
+        if self.age > self.peakAge:
+            fitnessFactor = skillDistribution['fitness'] / totalSkill
+            fitnessFactor += (distanceFromPeakAge / 125)
+            skillDistribution['fitness'] = Utils.limitValue(totalSkill * fitnessFactor, skDiMin, skDiMax)
+        totalSkill = sum(skillDistribution.values())
+        for key, value in skillDistribution.items():
+            skillDistribution[key] = Utils.limitValue(value * len(skills) / totalSkill, skDiMin, skDiMax)
 
         return skillDistribution
     
     def setBestPosition(self):
         positions = self.config['positions']
         positionSuitabilities = {}
+        selfSkillDistribution = list(self.skillDistribution.values())
         for position, attributes in positions.items():
+            idealSkillDistributionForPosition = list(attributes['skillDistribution'].values())
             # retainedAttributes = {}
             # for attribute in attributes.keys():
             #     if self.skillDistribution[attribute] > attributes[attribute]:
             #         retainedAttributes[attribute] = self.skillDistribution[attribute]
             #         self.skillDistribution[attribute] = attributes[attribute]
-            positionSuitability = 1 - spatial.distance.cosine(list(self.skillDistribution.values()), list(attributes.values()))
+            positionSuitability = 1 - spatial.distance.cosine(selfSkillDistribution, idealSkillDistributionForPosition)
             if positionSuitability <= 0:
                 positionSuitability = 0
             positionSuitabilities[position] = positionSuitability
             # for retainedAttribute, retainedValue in retainedAttributes.items():
             #     self.skillDistribution[retainedAttribute] = retainedValue
         self.positionSuitabilities = positionSuitabilities
-        return max(positionSuitabilities, key = positionSuitabilities.get)
+        bestPosition = max(positionSuitabilities, key = positionSuitabilities.get)
+
+        ### Now that best position has been identified, normalise player's skill distribution towards the optimum for that position, to curb excessive weirdness
+        bestSkillDistribution = self.config['positions'][bestPosition]['skillDistribution']
+        normalisingFactor = self.config['skill']['normalisingFactor']
+        for skill, value in self.skillDistribution.items():
+            self.skillDistribution[skill] = self.skillDistribution[skill] + (bestSkillDistribution[skill] - self.skillDistribution[skill]) * Utils.limitValue(np.random.normal(normalisingFactor['mean'], normalisingFactor['stDev']), normalisingFactor['min'], normalisingFactor['max'])
+        
+        return bestPosition
         ### Each game a player plays in a particular position, perhaps they get honed more towards it
-        ### But also spark should decrease and control increase over time
     
     def retire(self):
         self.retired = True

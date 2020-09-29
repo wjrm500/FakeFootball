@@ -5,6 +5,8 @@ sys.path.append('.')
 from Player import Player
 from config import playerConfig
 from types import SimpleNamespace
+import math
+import copy
 
 def showPredictedRatings(player):
     ageList, predictedRatingList = [], []
@@ -41,57 +43,198 @@ def showPredictedRatings(player):
     )
     plt.show()
 
-def showSkillDistribution(player):
+def plotPlayer(player, axes, config):
+    labelsOn, positionTextRotated, projectionOn, scaleForOverallRatingOn = [value for value in list(config.values())]
+    blank = True if player is None else False
+    axes.set(aspect='equal')
     frameSize = 2.5
-    ### Calculate vertices
-    skills = player.skillDistribution
-    points = {}
-    for i, (skill, value) in enumerate(skills.items()):
-        angle = 2 / len(skills) * i * np.pi
-        pointX = value * np.sin(angle)
-        sidePointX = frameSize * np.sin(angle)
-        pointY = value * np.cos(angle)
-        sidePointY = frameSize * np.cos(angle)
-        labelX = (value + 0.375) * np.sin(angle)
-        labelY = (value + 0.375) * np.cos(angle)
-        points[skill] = {'x': pointX, 'y': pointY}
-        plt.plot((0, sidePointX), (0, sidePointY), color = 'red', linewidth = 0.25)
-        plt.text(labelX, labelY, "{0}\n{1:.1%}".format(skill, value), horizontalalignment = 'center', verticalalignment = 'center', fontdict = {'size': 8})
-    pointsList = list(points.values())
-    pointsList.append(pointsList[0]) ### Duplicate first point as last point to complete the shape
+    frameSize = frameSize * 100 if scaleForOverallRatingOn else frameSize
 
-    ### Add edges between vertices
-    for i in range(len(pointsList) - 1):
-        plt.plot(
-            (pointsList[i]['x'], pointsList[i + 1]['x']),
-            (pointsList[i]['y'], pointsList[i + 1]['y']),
-            color = 'black'
-        )
-    
-    ### Fill shape and add center point for reference
-    xPoints = [point['x'] for point in pointsList]
-    yPoints = [point['y'] for point in pointsList]
-    plt.fill(xPoints, yPoints, color = 'lightgray') ### TODO: Different colours for different positions? Variable colour based on skills e.g. more red for offence, more blue for defence, darker for more control, lighter for more spark?
+    if not blank:
+        ### Calculate vertices
+        skillDistribution = player.skillDistribution
+        playerRating = player.rating
+        points = {}
+        for j, (skill, value) in enumerate(skillDistribution.items()):
+            if scaleForOverallRatingOn:
+                value *= playerRating
+            angle = 2 / len(skillDistribution) * j * np.pi
+            pointX = value * np.sin(angle)
+            pointY = value * np.cos(angle)
+            points[skill] = {'x': pointX, 'y': pointY}
+            if labelsOn:
+                sidePointX = frameSize * np.sin(angle)
+                sidePointY = frameSize * np.cos(angle)
+                labelOffset = 37.5 if scaleForOverallRatingOn else 0.375
+                labelX = (value + labelOffset) * np.sin(angle)
+                labelY = (value + labelOffset) * np.cos(angle)
+                axes.plot((0, sidePointX), (0, sidePointY), color = 'blue', linewidth = 0.25)
+                labelText = "{}\n{}".format(skill, int(player.rating * value / 100)) if scaleForOverallRatingOn else "{0}\n{1:.1%}".format(skill, value)
+                axes.text(labelX, labelY, labelText, horizontalalignment = 'center', verticalalignment = 'center', fontdict = {'family': 'arial', 'size': 8})
+        pointsList = list(points.values())
+        pointsList.append(pointsList[0]) ### Duplicate first point as last point to complete the shape
 
-    ### Frame plot
-    plt.plot((-frameSize, frameSize), (frameSize, frameSize), color = "lightgray")
-    plt.plot((frameSize, frameSize), (-frameSize, frameSize), color = "lightgray")
-    plt.plot((-frameSize, frameSize), (-frameSize, -frameSize), color = "lightgray")
-    plt.plot((-frameSize, -frameSize), (-frameSize, frameSize), color = "lightgray")
+        ### Add edges between vertices
+        for j in range(len(pointsList) - 1):
+            axes.plot(
+                (pointsList[j]['x'], pointsList[j + 1]['x']),
+                (pointsList[j]['y'], pointsList[j + 1]['y']),
+                color = 'black'
+            )
+
+        ### Add rating projection to plot
+        if projectionOn and player.age != player.peakAge:
+            projectedSkillDistribution = player.getSkillDistribution(player.peakAge)
+            projectedPlayerRating = player.getRating(player.peakAge)
+            projectedPoints = {}
+            for j, (skill, projectedValue) in enumerate(projectedSkillDistribution.items()):
+                if scaleForOverallRatingOn:
+                    projectedValue *= projectedPlayerRating
+                angle = 2 / len(projectedSkillDistribution) * j * np.pi
+                projectedPointX = projectedValue * np.sin(angle)
+                projectedPointY = projectedValue * np.cos(angle)
+                projectedPoints[skill] = {'x': projectedPointX, 'y': projectedPointY}
+            projectedPointsList = list(projectedPoints.values())
+            projectedPointsList.append(projectedPointsList[0]) ### Duplicate first point as last point to complete the shape
+
+            ### Add edges between vertices
+            projectedLineColour = 'green' if player.age < player.peakAge else 'red'
+
+            for j in range(len(projectedPointsList) - 1):
+                axes.plot(
+                    (projectedPointsList[j]['x'], projectedPointsList[j + 1]['x']),
+                    (projectedPointsList[j]['y'], projectedPointsList[j + 1]['y']),
+                    color = projectedLineColour,
+                    linestyle = 'dotted'
+                )
+
+    if not blank:
+        xPoints = [point['x'] for point in pointsList]
+        yPoints = [point['y'] for point in pointsList]
+    else:
+        xPoints = [frameSize, frameSize, -frameSize, -frameSize]
+        yPoints = [frameSize, -frameSize, -frameSize, frameSize]
+    axes.fill(xPoints, yPoints, color = 'lightgray')
+
+    ### Frame plot/s with grey border
+    axes.plot((-frameSize, frameSize), (frameSize, frameSize), color = "lightgray")
+    axes.plot((frameSize, frameSize), (-frameSize, frameSize), color = "lightgray")
+    axes.plot((-frameSize, frameSize), (-frameSize, -frameSize), color = "lightgray")
+    axes.plot((-frameSize, -frameSize), (-frameSize, frameSize), color = "lightgray")
 
     ### Miscellaneous config
-    bestPositionText = player.config['positions'][player.bestPosition]['realName']
-    bestPositionText = bestPositionText.replace(' ', '\n')
-    plt.text(0, 0, bestPositionText, horizontalalignment = 'center', verticalalignment = 'center', fontdict = {'size': 10, 'weight': 'bold'})
-    plt.axis('off')
-    plt.xlim(-frameSize, frameSize)
-    plt.ylim(-frameSize, frameSize)
-    plt.title(
-        'Skill distribution for {}'.format(player.name),
-        fontdict = {
+    axes.set_xlim(-frameSize, frameSize)
+    axes.set_ylim(-frameSize, frameSize)
+    axes.axis('off')
+    if not blank and not labelsOn:
+        axes.plot(0, 0, 'o')
+
+    ### Add corner text
+    if not blank:
+        cornerFontDict = {
+            'family': 'arial',
+            'size': 9,
             'weight': 'bold'
         }
-    )
+        axes.text(
+            -0.975 * frameSize,
+            0.95 * frameSize,
+            player.name,
+            horizontalalignment = 'left',
+            verticalalignment = 'top',
+            fontdict = (lambda a, b: a.update(b) or a)(copy.deepcopy(cornerFontDict), {'size': 14})
+        )
+        axes.text(
+            0.975 * frameSize,
+            0.95 * frameSize,
+            'Age: {}\nRating: {}'.format(int(player.age), int(player.rating)),
+            horizontalalignment = 'right',
+            verticalalignment = 'top',
+            fontdict = cornerFontDict
+        )
+        axes.text(
+            0.975 * frameSize,
+            -0.95 * frameSize,
+            'Peak Age: {}\nPeak Rating: {}'.format(int(player.peakAge), int(player.peakRating)),
+            horizontalalignment = 'right',
+            verticalalignment = 'bottom',
+            fontdict = cornerFontDict
+        )
+        poSuDict = player.positionSuitabilities
+        if not positionTextRotated:
+            positionText = ''
+            for position in sorted(poSuDict, key = poSuDict.get, reverse = True):
+                suitability = poSuDict[position]
+                if suitability >= 0.975:
+                    positionText += '{0}: {1:.1%}\n'.format(
+                        player.config['positions'][position]['realName'],
+                        suitability
+                    )
+            if positionText == '':
+                positionText = '{0}: {1:.1%}'.format(
+                    player.config['positions'][player.bestPosition]['realName'],
+                    poSuDict[player.bestPosition]
+                )
+            else:
+                positionText = positionText.rstrip()
+            axes.text(
+                -0.975 * frameSize,
+                -0.95 * frameSize,
+                positionText,
+                horizontalalignment = 'left',
+                verticalalignment = 'bottom',
+                fontdict = cornerFontDict
+            )
+        else:
+            realPositionName = player.config['positions'][player.bestPosition]['realName']
+            positionText = realPositionName.replace(' ', '\n')
+            axes.text(
+                -0.975 * frameSize,
+                -0.95 * frameSize,
+                positionText,
+                horizontalalignment = 'left',
+                verticalalignment = 'bottom',
+                fontdict = cornerFontDict,
+                rotation = 90
+            )
+
+def showSkillDistribution(players, labels = None, projection = False, scaleForOverallRating = True):
+    if not isinstance(players, list):
+        players = [players]
+    numPlayers = len(players)
+    if numPlayers > 8:
+        print("Too many players")
+        return
+    if labels is None:
+        if numPlayers > 2:
+            labels = False
+        else:
+            labels = True
+    positionTextRotated = True if numPlayers > 2 else False
+    plotConfig = {
+        'labelsOn': labels,
+        'positionTextRotated': positionTextRotated,
+        'projectionOn': projection,
+        'scaleForOverallRatingOn': scaleForOverallRating
+    }
+    rows = 1 if numPlayers < 3 else 2
+    cols = math.ceil(numPlayers / rows)
+    fig, axes = plt.subplots(nrows = rows, ncols = cols)
+    if numPlayers == 1:
+        plotPlayer(players[0], axes, plotConfig)
+    elif numPlayers == 2:
+        for i in range(cols):
+            plotPlayer(players[i], axes[i], plotConfig)
+    else:
+        p = 0
+        for i in range(rows):
+            for j in range(cols):
+                if p < numPlayers:
+                    plotPlayer(players[p], axes[i][j], plotConfig)
+                else:
+                    plotPlayer(None, axes[i][j], plotConfig)
+                p += 1
 
     ### Show plot
     plt.show()
+    

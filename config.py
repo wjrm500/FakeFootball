@@ -12,21 +12,29 @@ playerConfig = {
     },
     'growthSpeed': {
         'incline': {
-            'mean': 0.5,
-            'stDev': 0.1
+            'mean': 0.75,
+            'stDev': 0.1,
+            'min': 0.25,
+            'max': 1.25
         },
         'decline': {
             'mean': 1,
-            'stDev': 0.1
+            'stDev': 0.1,
+            'min': 0.5,
+            'max': 1.5
         }
     },
     'peakAge': {
+        'mean': 27,
+        'stDev': 2,
         'min': 22,
         'max': 32
     },
     'peakRating': {
         'mean': (100 / 3 *  2),
-        'stDev': 10
+        'stDev': 10,
+        'min': 20,
+        'max': 100
     },
     'positions': {
         'CF': {
@@ -140,18 +148,20 @@ playerConfig = {
     },
     'retirementThreshold': {
         'mean': 0.85,
-        'stDev': 0.025
+        'stDev': 0.025,
+        'min': 0.75,
+        'max': 0.95
     },
     'skill': {
         'distribution': {
             'mean': 1,
             'stDev': 0.375,
-            'min': 0.375,
-            'max': 1.875
+            'min': 0.25,
+            'max': 1.75
         },
         'normalisingFactor': {
-            'mean': 0.25,
-            'stDev': 0.05,
+            'mean': 0,
+            'stDev': 0,
             'min': 0,
             'max': 0.5
         },
@@ -162,6 +172,26 @@ playerConfig = {
             'defence',
             'authority', ### How well a player is able to take control of a situation
             'fitness'
+        ],
+        'transitions': [
+            {
+                'from': 'spark',
+                'to': 'authority',
+                'when': {
+                    'incline': True,
+                    'decline': True
+                },
+                'gradient': -0.01
+            },
+            {
+                'from': 'fitness',
+                'to': '',
+                'when': {
+                    'incline': False,
+                    'decline': True
+                },
+                'gradient': -0.015
+            }
         ]
     }
 }

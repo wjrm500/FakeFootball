@@ -2,69 +2,61 @@ import Utilities.Utils as Utils
 import random
 import numpy as np
 from scipy import spatial
+from config import playerConfig
+import copy
 
 class Player:
     def __init__(
         self,
-        playerConfig,
+        config = None,
         name = None,
         age = None,
         peakAge = None,
         growthSpeed = None,
         retirementThreshold = None,
         peakRating = None,
-        skillDistribution = None,
-        bestPosition = None
+        underlyingSkillDistribution = None
         ):
-        self.config = playerConfig
-        self.name = Utils.generateName(name, 10) if name == None else name
-        self.age = self.setAge() if age == None else age
-        self.peakAge = self.setPeakAge() if peakAge == None else peakAge
-        self.growthSpeed = self.setGrowthSpeed() if growthSpeed == None else growthSpeed
-        self.retirementThreshold = self.setRetirementThreshold() if retirementThreshold == None else retirementThreshold
-        self.peakRating = self.setPeakRating() if peakRating == None else peakRating
+        self.config = copy.deepcopy(playerConfig)
+        if config is not None:
+            Utils.updateConfig(self.config, config)
+        self.name = Utils.generateName(name, 10) if name is None else name
+        self.age = self.setAge() if age is None else age
+        self.peakAge = self.setPeakAge() if peakAge is None else peakAge
+        self.growthSpeed = self.setGrowthSpeed() if growthSpeed is None else growthSpeed
+        self.retirementThreshold = self.setRetirementThreshold() if retirementThreshold is None else retirementThreshold
+        self.peakRating = self.setPeakRating() if peakRating is None else peakRating
         self.retired = False
-        self.rating = self.calculateRating()
-        self.skillDistribution = self.setSkillDistribution() if skillDistribution == None else skillDistribution
-        self.bestPosition = self.setBestPosition() if bestPosition == None else bestPosition
+        self.rating = self.getRating()
+        self.underlyingSkillDistribution = self.setUnderlyingSkillDistribution() if underlyingSkillDistribution is None else underlyingSkillDistribution
+        self.skillDistribution = self.getSkillDistribution()
         self.team = None
-        # randNum = random.randint(1, 1000)
-        # if randNum == 1000:
-        #     print("Name: {}, Age: {}, PeakRating: {}, Rating: {}".format(self.name, self.age, self.peakRating, self.rating))
     
     def setAge(self):
-        minAge = self.config['age']['min']
-        maxAge = self.config['age']['max']
-        return random.randint(minAge, maxAge)
+        agMin = self.config['age']['min']
+        agMax = self.config['age']['max']
+        return random.randint(agMin, agMax)
     
     def setPeakAge(self):
-        minPeakAge = self.config['peakAge']['min']
-        maxPeakAge = self.config['peakAge']['max']
-        return random.randint(minPeakAge, maxPeakAge)
+        return round(Utils.limitedRandNorm(self.config['peakAge']))
     
     def setGrowthSpeed(self):
-        inclineMu = self.config['growthSpeed']['incline']['mean']
-        inclineSigma = self.config['growthSpeed']['incline']['stDev']
-        declineMu = self.config['growthSpeed']['decline']['mean']
-        declineSigma = self.config['growthSpeed']['decline']['stDev']
+        randIncline = Utils.limitedRandNorm(self.config['growthSpeed']['incline'])
+        randDecline = Utils.limitedRandNorm(self.config['growthSpeed']['decline'])
         return {
-            'incline': np.random.normal(inclineMu, inclineSigma),
-            'decline': np.random.normal(declineMu, declineSigma)
+            'incline': randIncline,
+            'decline': randDecline
         }
 
     def setRetirementThreshold(self):
-        mu = self.config['retirementThreshold']['mean']
-        sigma = self.config['retirementThreshold']['stDev']
-        return np.random.normal(mu, sigma)
+        return Utils.limitedRandNorm(self.config['retirementThreshold'])
 
     def setPeakRating(self):
-        mu = self.config['peakRating']['mean']
-        sigma = self.config['peakRating']['stDev']
-        return np.random.normal(mu, sigma)
+        return Utils.limitedRandNorm(self.config['peakRating'])
 
-    def calculateRating(self, age = None):
-        if age == None:
-            age = self.age
+    def getRating(self, age = None):
+        age = self.age if age is None else age
+
         distanceFromPeakAge = abs(self.peakAge - age)
         direction = 'incline' if self.peakAge > age else 'decline'
         growthSpeedFactor = self.growthSpeed[direction]
@@ -73,64 +65,89 @@ class Player:
         if direction == 'decline' and rating < (self.peakRating * self.retirementThreshold):
             self.retire()
         return self.peakRating * peakRatingFulfillment
+
+    def rebalanceSkillDistribution(self, distribution):
+        [skDiMn, skDiMx] = [value for value in list(self.config['skill']['distribution'].values())[2:4]]
+        x = len(self.config['skill']['skills'])
+        while True:
+            skillsOutOfBounds = []
+            for value in distribution.values():
+                if value < skDiMn or value > skDiMx:
+                    skillsOutOfBounds.append(1)
+                else:
+                    skillsOutOfBounds.append(0)
+            # skillsOutOfBounds = [1 for value in distribution.values() if value < skDiMin or value > skDiMax else 0]
+            if not any(skillsOutOfBounds):
+                break
+            for key, value in distribution.items():
+                distribution[key] = ((value * x) + len(distribution) - x) / len(distribution)
+            x -= 0.1
     
-    def setSkillDistribution(self):
+    def setUnderlyingSkillDistribution(self):
         skills = self.config['skill']['skills']
-        [skDiMu, skDiSigma, skDiMin, skDiMax] = [value for value in self.config['skill']['distribution'].values()]
-        skillDistribution = {skill: Utils.limitValue(np.random.normal(skDiMu, skDiSigma), skDiMin, skDiMax) for skill in skills}
-        totalSkill = sum(skillDistribution.values())
-        for key, value in skillDistribution.items():
-            skillDistribution[key] = value * len(skills) / totalSkill
+        [skDiMu, skDiSg] = [value for value in list(self.config['skill']['distribution'].values())[0:2]]
+        underlyingSkillDistribution = {skill: np.random.normal(skDiMu, skDiSg) for skill in skills}
 
-        ### With age, spark decreases and authority increases
-        distanceFromPeakAge = self.peakAge - self.age
-        sparkAuthoritySum = skillDistribution['spark'] + skillDistribution['authority']
-        sparkFactor = skillDistribution['spark'] / sparkAuthoritySum
-        sparkFactor += (distanceFromPeakAge / 250)
-        skillDistribution['spark'] = sparkAuthoritySum * sparkFactor
-        authorityFactor = 1 - sparkFactor
-        skillDistribution['authority'] = sparkAuthoritySum * authorityFactor
+        ### Centralise - set mean = 1
+        totalSkill = sum(underlyingSkillDistribution.values())
+        for key, value in underlyingSkillDistribution.items():
+            underlyingSkillDistribution[key] = value * len(skills) / totalSkill
+        
+        ### Rebalance - handle the passing of thresholds for minimum and maximum
+        self.rebalanceSkillDistribution(underlyingSkillDistribution)
 
-        ### Fitness drops when player passes peak age
-        totalSkill = sum(skillDistribution.values())
-        if self.age > self.peakAge:
-            fitnessFactor = skillDistribution['fitness'] / totalSkill
-            fitnessFactor += (distanceFromPeakAge / 125)
-            skillDistribution['fitness'] = Utils.limitValue(totalSkill * fitnessFactor, skDiMin, skDiMax)
-        totalSkill = sum(skillDistribution.values())
-        for key, value in skillDistribution.items():
-            skillDistribution[key] = Utils.limitValue(value * len(skills) / totalSkill, skDiMin, skDiMax)
+        return underlyingSkillDistribution
 
-        return skillDistribution
-    
-    def setBestPosition(self):
+    def getSkillDistribution(self, age = None):
+        skillDistribution = copy.deepcopy(self.underlyingSkillDistribution)
+
+        ### Apply age-dependent modifications to distribution
+        age = self.age if age is None else age
+        transitions = self.config['skill']['transitions']
+        distanceFromPeakAge = self.peakAge - age
+        for transition in transitions:
+            direction = 'incline' if self.peakAge > age else 'decline'
+            if (direction == 'incline' and transition['when']['incline'] == True) or (direction == 'decline' and transition['when']['decline'] == True):
+                if transition['from'] == '':
+                    toValue = skillDistribution[transition['to']]
+                    toFactor = toValue / sum(skillDistribution.values())
+                    modifiedToFactor = toFactor - (distanceFromPeakAge * transition['gradient'])
+                    skillDistribution[transition['to']] = sum(skillDistribution.values()) * modifiedToFactor
+                elif transition['to'] == '':
+                    fromValue = skillDistribution[transition['from']]
+                    fromFactor = fromValue / sum(skillDistribution.values())
+                    modifiedFromFactor = fromFactor - (distanceFromPeakAge * transition['gradient'])
+                    skillDistribution[transition['from']] = sum(skillDistribution.values()) * modifiedFromFactor
+                else:
+                    fromValue = skillDistribution[transition['from']]
+                    toValue = skillDistribution[transition['to']]
+                    fromToSum = fromValue + toValue
+                    fromFactor = fromValue / fromToSum
+                    modifiedFromFactor = fromFactor - (distanceFromPeakAge * transition['gradient'])
+                    skillDistribution[transition['from']] = fromToSum * modifiedFromFactor
+                    skillDistribution[transition['to']] = fromToSum * (1 - modifiedFromFactor)
+                self.rebalanceSkillDistribution(skillDistribution)
+
+        ### Set player's best position based on skill distribution
         positions = self.config['positions']
         positionSuitabilities = {}
-        selfSkillDistribution = list(self.skillDistribution.values())
+        selfSkillDistribution = list(skillDistribution.values())
         for position, attributes in positions.items():
             idealSkillDistributionForPosition = list(attributes['skillDistribution'].values())
-            # retainedAttributes = {}
-            # for attribute in attributes.keys():
-            #     if self.skillDistribution[attribute] > attributes[attribute]:
-            #         retainedAttributes[attribute] = self.skillDistribution[attribute]
-            #         self.skillDistribution[attribute] = attributes[attribute]
             positionSuitability = 1 - spatial.distance.cosine(selfSkillDistribution, idealSkillDistributionForPosition)
             if positionSuitability <= 0:
                 positionSuitability = 0
             positionSuitabilities[position] = positionSuitability
-            # for retainedAttribute, retainedValue in retainedAttributes.items():
-            #     self.skillDistribution[retainedAttribute] = retainedValue
         self.positionSuitabilities = positionSuitabilities
-        bestPosition = max(positionSuitabilities, key = positionSuitabilities.get)
+        self.bestPosition = max(positionSuitabilities, key = positionSuitabilities.get)
 
         ### Now that best position has been identified, normalise player's skill distribution towards the optimum for that position, to curb excessive weirdness
-        bestSkillDistribution = self.config['positions'][bestPosition]['skillDistribution']
+        bestSkillDistribution = self.config['positions'][self.bestPosition]['skillDistribution']
         normalisingFactor = self.config['skill']['normalisingFactor']
-        for skill, value in self.skillDistribution.items():
-            self.skillDistribution[skill] = self.skillDistribution[skill] + (bestSkillDistribution[skill] - self.skillDistribution[skill]) * Utils.limitValue(np.random.normal(normalisingFactor['mean'], normalisingFactor['stDev']), normalisingFactor['min'], normalisingFactor['max'])
-        
-        return bestPosition
-        ### Each game a player plays in a particular position, perhaps they get honed more towards it
-    
+        for skill, value in skillDistribution.items():
+            skillDistribution[skill] = skillDistribution[skill] + (bestSkillDistribution[skill] - skillDistribution[skill]) * Utils.limitedRandNorm(normalisingFactor)
+
+        return skillDistribution
+
     def retire(self):
         self.retired = True

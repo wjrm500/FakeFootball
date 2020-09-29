@@ -1,5 +1,4 @@
 from Player import Player
-from config import playerConfig
 from types import SimpleNamespace
 from Utilities.PlayerUtils import showSkillDistribution
 
@@ -29,7 +28,21 @@ from Utilities.PlayerUtils import showSkillDistribution
 # # for key, value in ageDict.items():
 # #     print(key, value)
 
-player = Player(playerConfig)
+# player = Player(
+#     config = {
+#         'peakAge': {'mean': 27, 'stDev': 0},
+#         'peakRating': {'mean': 99, 'stDev': 0}
+#         },
+#     age = 27
+#     )
 from pprint import pprint
-pprint(vars(player))
-showSkillDistribution(player)
+players = []
+while len(players) < 8:
+    player = Player()
+    if player.retired is False:
+        players.append(player)
+        # pprint(vars(player))
+
+
+showSkillDistribution(players, projection = True, labels = True)
+print('hello')

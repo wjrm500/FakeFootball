@@ -1,0 +1,11 @@
+MatchEngine only takes in clubs
+Manager and Player subclasses of Person
+Manager signs player rather than club?
+Manager needs name
+Config stuff in same folder
+
+
+Player has birthday, which means player has exact decimal age and rating changes daily
+Player peak rating shifts every day
+Player has fatigue attribute which starts at 0, goes up a certain amount after a game, and then gradually falls daily. Fatigue affects game rating
+and injury likelihood

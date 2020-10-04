@@ -1,8 +1,8 @@
 systemConfig = {
-    'numSystems': 8,
-    'numDivisionsPerSystem': 4,
+    'numSystems': 1, #8
+    'numDivisionsPerSystem': 2, #8
     'numTeamsPerDivision': 20,
-    'numPlayersPerTeam': 40
+    'numPlayersPerTeam': 20 #40
 }
 
 playerConfig = {
@@ -160,8 +160,8 @@ playerConfig = {
             'max': 1.75
         },
         'normalisingFactor': {
-            'mean': 0,
-            'stDev': 0,
+            'mean': 0.25,
+            'stDev': 0.05,
             'min': 0,
             'max': 0.5
         },
@@ -191,7 +191,149 @@ playerConfig = {
                     'decline': True
                 },
                 'gradient': -0.015
-            }
+            }    
         ]
     }
+}
+
+managerConfig = {
+    'formations': {
+        '3-4-1-2': {
+            'popularity': 0.0105,
+            'personnel': {
+                'CF': 2, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
+            }
+        },
+        '3-4-2-1': {
+            'popularity': 0.0596,
+            'personnel': {
+                'CF': 1, 'WF': 0, 'COM': 2, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
+            }
+        },
+        '3-4-3': {
+            'popularity': 0.0589,
+            'personnel': {
+                'CF': 1, 'WF': 2, 'COM': 0, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
+            }
+        },
+        '3-5-1-1': {
+            'popularity': 0.0081,
+            'personnel': {
+                'CF': 1, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
+            }
+        },
+        '3-5-2': {
+            'popularity': 0.0520,
+            'personnel': {
+                'CF': 2, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
+            }
+        },
+        '4-1-3-2': {
+            'popularity': 0.0014,
+            'personnel': {
+                'CF': 2, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 0, 'CDM': 1, 'WB': 0, 'FB': 2, 'CB': 2
+            }
+        },
+        '4-1-4-1': {
+            'popularity': 0.0826,
+            'personnel': {
+                'CF': 1, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 2, 'CDM': 1, 'WB': 0, 'FB': 2, 'CB': 2
+            }
+        },
+        '4-2-2-2': {
+            'popularity': 0.0056,
+            'personnel': {
+                'CF': 2, 'WF': 0, 'COM': 2, 'WM': 0, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+            }
+        },
+        '4-2-3-1': {
+            'popularity': 0.2121,
+            'personnel': {
+                'CF': 1, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+            }
+        },
+        '4-3-1-2': {
+            'popularity': 0.0323,
+            'personnel': {
+                'CF': 2, 'WF': 0, 'COM': 1, 'WM': 0, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+            }
+        },
+        '4-3-2-1': {
+            'popularity': 0.0019,
+            'personnel': {
+                'CF': 1, 'WF': 0, 'COM': 2, 'WM': 0, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+            }
+        },
+        '4-3-3': {
+            'popularity': 0.1320,
+            'personnel': {
+                'CF': 1, 'WF': 2, 'COM': 0, 'WM': 0, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+            }
+        },
+        '4-4-1-1': {
+            'popularity': 0.0602,
+            'personnel': {
+                'CF': 1, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+            }
+        },
+        '4-4-2': {
+            'popularity': 0.2216,
+            'personnel': {
+                'CF': 2, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+            }
+        },
+        '4-5-1': {
+            'popularity': 0.0101,
+            'personnel': {
+                'CF': 1, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+            }
+        },
+        '5-3-2': {
+            'popularity': 0.0273,
+            'personnel': {
+                'CF': 2, 'WF': 0, 'COM': 0, 'WM': 0, 'CM': 3, 'CDM': 0, 'WB': 2, 'FB': 0, 'CB': 3
+            }
+        },
+        '5-4-1': {
+            'popularity': 0.0238,
+            'personnel': {
+                'CF': 1, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 2, 'FB': 0, 'CB': 3
+            }
+        }
+    }
+}
+
+matchConfig = {
+    'contribution': {
+        'offence': {
+            'offence': 1.0,
+            'defence': 0.0
+        },
+        'spark': {
+            'offence': 0.9,
+            'defence': 0.1
+        },
+        'technique': {
+            'offence': 0.6,
+            'defence': 0.4
+        },
+        'defence': {
+            'offence': 0.0,
+            'defence': 1.0
+        },
+        'authority': {
+            'offence': 0.2,
+            'defence': 0.8
+        },
+        'fitness': {
+            'offence': 0.3,
+            'defence': 0.7
+        }
+    },
+    'goalLikelihood': {
+        'CF': 1, 'WF': 1, 'COM': 1, 'WM': 1, 'CM': 1, 'CDM': 1, 'WB': 1, 'FB': 0.75, 'CB': 0.75
+    },
+    'assistLikelihood': {
+        'CF': 1, 'WF': 1, 'COM': 1, 'WM': 1, 'CM': 1, 'CDM': 1, 'WB': 1, 'FB': 1, 'CB': 0.75
+    },
 }

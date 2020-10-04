@@ -1,8 +1,8 @@
-import numpy as np
-import matplotlib.pyplot as plt
 import sys
 sys.path.append('.')
-from Player import Player
+import numpy as np
+import matplotlib.pyplot as plt
+from Persons.Player import Player
 from config import playerConfig
 from types import SimpleNamespace
 import math
@@ -202,7 +202,7 @@ def showSkillDistribution(players, labels = None, projection = False, scaleForOv
     if not isinstance(players, list):
         players = [players]
     numPlayers = len(players)
-    if numPlayers > 8:
+    if numPlayers > 10:
         print("Too many players")
         return
     if labels is None:

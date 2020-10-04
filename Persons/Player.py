@@ -1,3 +1,6 @@
+import sys
+sys.path.append('.')
+from Persons.Person import Person
 import Utilities.Utils as Utils
 import random
 import numpy as np
@@ -5,7 +8,7 @@ from scipy import spatial
 from config import playerConfig
 import copy
 
-class Player:
+class Player(Person):
     def __init__(
         self,
         config = None,
@@ -17,10 +20,10 @@ class Player:
         peakRating = None,
         underlyingSkillDistribution = None
         ):
+        super(Player, self).__init__(name)
         self.config = copy.deepcopy(playerConfig)
-        if config is not None:
+        if config is not None and config != playerConfig:
             Utils.updateConfig(self.config, config)
-        self.name = Utils.generateName(name, 10) if name is None else name
         self.age = self.setAge() if age is None else age
         self.peakAge = self.setPeakAge() if peakAge is None else peakAge
         self.growthSpeed = self.setGrowthSpeed() if growthSpeed is None else growthSpeed
@@ -30,7 +33,10 @@ class Player:
         self.rating = self.getRating()
         self.underlyingSkillDistribution = self.setUnderlyingSkillDistribution() if underlyingSkillDistribution is None else underlyingSkillDistribution
         self.skillDistribution = self.getSkillDistribution()
-        self.team = None
+        self.stats = {skill: self.rating * value for skill, value in self.skillDistribution.items()}
+        self.club = None
+        self.injured = False
+        self.selected = False
     
     def setAge(self):
         agMin = self.config['age']['min']
@@ -139,6 +145,7 @@ class Player:
                 positionSuitability = 0
             positionSuitabilities[position] = positionSuitability
         self.positionSuitabilities = positionSuitabilities
+        self.positionRatings = {key: value * self.rating for key, value in self.positionSuitabilities.items()}
         self.bestPosition = max(positionSuitabilities, key = positionSuitabilities.get)
 
         ### Now that best position has been identified, normalise player's skill distribution towards the optimum for that position, to curb excessive weirdness

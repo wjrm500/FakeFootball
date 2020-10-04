@@ -1,7 +1,7 @@
 from Division import Division
-import Utils
+import Utilities.Utils as Utils
 
 class System:
-    def __init__(self, systemConfig, name = ""):
-        self.divisions = [Division(systemConfig) for _ in range(systemConfig['numDivisionsPerSystem'])]
-        self.name = Utils.generateName(name, 4)
+    def __init__(self, systemConfig, name = None):
+        self.name = Utils.generateName(4) if name is None else name
+        self.divisions = [Division(self, systemConfig) for _ in range(systemConfig['numDivisionsPerSystem'])]

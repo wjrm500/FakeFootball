@@ -4,19 +4,20 @@ from datetime import date, timedelta
 
 class TimeLord:
     def __init__(self, creationYear, armageddonYear):
-        self.systemController = SystemController()
-        self.personController = PersonController()
         self.creationYear = creationYear
         self.armageddonYear = armageddonYear
         self.currentDate = date(creationYear, 1, 1)
         self.armageddonDate = date(armageddonYear, 1, 1)
+        self.systemController = SystemController()
+        self.personController = PersonController(self.creationYear)
     
     def createUniverse(self):
         self.systemController.initialise()
         self.systemController.scheduleFixtures(self.creationYear)
     
     def timeTravel(self, days):
-        for _ in range(days):
+        for i in range(days):
+            print(i)
             self.resolveQuotidia()
             self.advanceOneDay()
     
@@ -29,15 +30,19 @@ class TimeLord:
         yearAfter = self.currentDate.year
         if yearBefore != yearAfter:
             self.transition(yearBefore, yearAfter)
+            return
+        self.personController.advance()
 
     def transitionSeasons(self, oldYear, newYear):
-        pass
         # ### Persist data
         # ### Promotion and relegation
         # self.systemController.promoteRelegate()
         # ### Qualification for cups
         # ### Schedule fixtures
         self.systemController.scheduleFixtures(newYear)
+        self.personController.updateYear()
+        ### Player retirement
+        ### Generate new players to replace retirees
         # ### Transfers
     
     def conductArmageddon(self):

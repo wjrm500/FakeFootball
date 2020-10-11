@@ -14,6 +14,7 @@ class Division:
                 self.league[club][stat] = 0
         self.goalscorers = []
         self.assisters = []
+        self.playerStats = {}
     
     def scheduleFixture(self, date, clubX, clubY):
         if not self.schedule.get(date): ### If date exists
@@ -27,21 +28,25 @@ class Division:
         match.fileMatchReport()
     
     def handleMatchReport(self, matchReport):
-        for club, report in matchReport.items():
+        for club, clubReport in matchReport.items():
             self.league[club]['GP'] += 1
-            self.league[club]['GF'] += report['match']['goalsFor']
-            self.league[club]['GA'] += report['match']['goalsAgainst']
-            self.league[club]['GD'] += report['match']['goalsFor'] - report['match']['goalsAgainst']
-            if report['match']['outcome'] == 'win':
+            self.league[club]['GF'] += clubReport['match']['goalsFor']
+            self.league[club]['GA'] += clubReport['match']['goalsAgainst']
+            self.league[club]['GD'] += clubReport['match']['goalsFor'] - clubReport['match']['goalsAgainst']
+            if clubReport['match']['outcome'] == 'win':
                 self.league[club]['W'] += 1
                 self.league[club]['Pts'] += 3
-            elif report['match']['outcome'] == 'draw':
+            elif clubReport['match']['outcome'] == 'draw':
                 self.league[club]['D'] += 1
                 self.league[club]['Pts'] += 1
-            elif report['match']['outcome'] == 'loss':
+            elif clubReport['match']['outcome'] == 'loss':
                 self.league[club]['L'] += 1
-            self.goalscorers.extend(report['match']['goalscorers'])
-            self.assisters.extend(report['match']['assisters'])
+            self.goalscorers.extend(clubReport['match']['goalscorers'])
+            self.assisters.extend(clubReport['match']['assisters'])
+            for player, playerReport in clubReport['players'].items():
+                if not self.playerStats.get(player):
+                    self.playerStats[player] = []
+                self.playerStats[player].append(playerReport)
     
     def displayLeagueTable(self):
         sortedClubs = sorted(self.league.items(), key = lambda x: x[1]['Pts'], reverse = True)
@@ -54,31 +59,33 @@ class Division:
             print(x)
         print('\n')
     
-    def displayTopScorersAssisters(self):
-        for y, z in zip(
-            [self.goalscorers, self.assisters, self.goalscorers + self.assisters],
-            ['goals', 'assists', 'goals and assists']
-            ):
-            print('Top ranked players for {}:'.format(z))
-            y = [{'player': player, z: y.count(player)} for player in set(y)]
-            y = sorted(y, key = lambda x: x[z], reverse = True)
-            for item in y[0:5]:
-                playerName = item['player'].name
-                club = item['player'].club.name
-                numItems = item[z]
-                ratPos = '{} rated {}'.format(str(int(round(item['player'].rating))), item['player'].bestPosition)
-                if z in ['goals', 'assists']:
-                    print('Player: {} - {} - Club: {} - {:2} {}'.format(playerName, ratPos, club, numItems, z))
-                elif z == 'goals and assists':
-                    numGoals = self.goalscorers.count(item['player'])
-                    numAssists = self.assisters.count(item['player'])
-                    print('Player: {} - {} - Club: {} - {:2} goals and {:2} assists'.format(playerName, ratPos, club, numGoals, numAssists))
-            print('\n')
+    def getPlayerStats(self, stat):
+        if stat == 'goals':
+            l = self.goalscorers
+        elif stat == 'assists':
+            l = self.assisters
+        x = [{'player': player, stat: l.count(player)} for player in set(l)]
+        x = sorted(x, key = lambda k: k[stat], reverse = True)
+        return x
     
-    def displayBestPlayers(self, numPlayers = 5):
+    def displayPlayerStats(self, stat, numRecords):
+        x = self.getPlayerStats(stat)
+        for item in x[0:numRecords]:
+            playerName = ' '.join(item['player'].name)
+            club = item['player'].club.name
+            numItems = item[stat]
+            ratPos = '{} rated {}'.format(str(int(round(item['player'].rating))), item['player'].bestPosition)
+            print('Player: {:30} - {:12} - Club: {} - {:2} {}'.format(playerName, ratPos, club, numItems, stat))
+    
+    def getBestPlayers(self, position):
         sortedPlayers = sorted(self.players, key = lambda x: x.rating, reverse = True)
-        print('Best players by rating:')
-        for player in sortedPlayers[0:numPlayers]:
+        if position is not None:
+            sortedPlayers = [player for player in sortedPlayers if player.bestPosition == position]
+        return sortedPlayers
+    
+    def displayBestPlayers(self, position = None, numRecords = 5):
+        x = self.getBestPlayers(position)
+        for player in x[0:numRecords]:
             playerName = player.name
             club = player.club.name
             ratPos = '{} rated {}'.format(str(int(round(player.rating))), player.bestPosition)

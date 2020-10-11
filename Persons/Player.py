@@ -7,41 +7,37 @@ import numpy as np
 from scipy import spatial
 from config import playerConfig
 import copy
+from datetime import date, timedelta
 
 class Player(Person):
     def __init__(
         self,
-        config = None,
+        personController,
         name = None,
         age = None,
+        config = None,
         peakAge = None,
         growthSpeed = None,
         retirementThreshold = None,
         peakRating = None,
         underlyingSkillDistribution = None
         ):
-        super(Player, self).__init__(name)
+        super(Player, self).__init__(personController, name, age)
         self.config = copy.deepcopy(playerConfig)
         if config is not None and config != playerConfig:
             Utils.updateConfig(self.config, config)
-        self.age = self.setAge() if age is None else age
         self.peakAge = self.setPeakAge() if peakAge is None else peakAge
         self.growthSpeed = self.setGrowthSpeed() if growthSpeed is None else growthSpeed
         self.retirementThreshold = self.setRetirementThreshold() if retirementThreshold is None else retirementThreshold
         self.peakRating = self.setPeakRating() if peakRating is None else peakRating
         self.retired = False
-        self.rating = self.getRating()
+        self.rating = self.setRating()
         self.underlyingSkillDistribution = self.setUnderlyingSkillDistribution() if underlyingSkillDistribution is None else underlyingSkillDistribution
-        self.skillDistribution = self.getSkillDistribution()
-        self.stats = {skill: self.rating * value for skill, value in self.skillDistribution.items()}
+        self.skillDistribution = self.setSkillDistribution()
+        self.stats = self.setStats()
         self.club = None
         self.injured = False
-        self.selected = False
-    
-    def setAge(self):
-        agMin = self.config['age']['min']
-        agMax = self.config['age']['max']
-        return random.randint(agMin, agMax)
+        self.fatigue = 0
     
     def setPeakAge(self):
         return round(Utils.limitedRandNorm(self.config['peakAge']))
@@ -60,9 +56,12 @@ class Player(Person):
     def setPeakRating(self):
         return Utils.limitedRandNorm(self.config['peakRating'])
 
-    def getRating(self, age = None):
-        age = self.age if age is None else age
+    def adjustPeakRating(self):
+        mn, mx = self.config['peakRating']['min'], self.config['peakRating']['max']
+        self.peakRating = Utils.limitedRandNorm({'mu': self.peakRating, 'sigma': 50 / (self.age ** 2), 'mn': mn, 'mx': mx})
 
+    def setRating(self, age = None):
+        age = self.age if age is None else age
         distanceFromPeakAge = abs(self.peakAge - age)
         direction = 'incline' if self.peakAge > age else 'decline'
         growthSpeedFactor = self.growthSpeed[direction]
@@ -104,7 +103,7 @@ class Player(Person):
 
         return underlyingSkillDistribution
 
-    def getSkillDistribution(self, age = None):
+    def setSkillDistribution(self, age = None):
         skillDistribution = copy.deepcopy(self.underlyingSkillDistribution)
 
         ### Apply age-dependent modifications to distribution
@@ -155,6 +154,39 @@ class Player(Person):
             skillDistribution[skill] = skillDistribution[skill] + (bestSkillDistribution[skill] - skillDistribution[skill]) * Utils.limitedRandNorm(normalisingFactor)
 
         return skillDistribution
+    
+    def setStats(self):
+        return {skill: self.rating * value for skill, value in self.skillDistribution.items()}
 
     def retire(self):
         self.retired = True
+    
+    def recover(self):
+        self.fatigue -= self.skillDistribution['fitness'] / 25
+        self.fatigue = 0 if self.fatigue < 0 else self.fatigue
+        if self.injured:
+            self.injured -= 1
+        if self.injured == 0:
+            self.injured = False
+    
+    def injure(self):
+        if self.injured is False:
+            injury = True if np.random.normal(self.fatigue, 0.02) > 0.25 else False
+            if injury:
+                x, itemArray, probabilityArray = 1, [], []
+                for i in range(1, 366):
+                    x /= 1.05
+                    itemArray.append(i)
+                    probabilityArray.append(x)
+                probabilityArray = [probability / sum(probabilityArray) for probability in probabilityArray]
+                injuryLength = np.random.choice(itemArray, p = probabilityArray)
+                self.injured = injuryLength
+
+    def advance(self):
+        super().advance()
+        self.recover()
+        self.injure()
+        self.adjustPeakRating()
+        self.rating = self.setRating()
+        self.setSkillDistribution()
+        self.setStats()

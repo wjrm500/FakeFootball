@@ -1,8 +1,8 @@
 systemConfig = {
-    'numSystems': 1, #8
-    'numDivisionsPerSystem': 2, #8
+    'numSystems': 1,
+    'numDivisionsPerSystem': 1,
     'numTeamsPerDivision': 20,
-    'numPlayersPerTeam': 20 #40
+    'numPlayersPerTeam': 20
 }
 
 playerConfig = {

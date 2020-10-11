@@ -27,14 +27,15 @@ class Manager(Person):
             for position, numPlayers in personnelRequired.items():
                 if numPlayers > 0:
                     for player in squad:
-                        if player.injured is False and player.selected is False:
-                            if player.positionRatings[position] > maxValue:
-                                maxValue = player.positionRatings[position]
+                        if player not in [selection['player'] for selection in teamSelected] and player.injured is False:
+                            positionRating = player.positionRatings[position]
+                            positionRating = positionRating - (positionRating * player.fatigue)
+                            if positionRating > maxValue:
+                                maxValue = positionRating
                                 selection = {'position': position, 'player': player}
             selectedPosition = selection['position']
             selectedPlayer = selection['player']
             personnelRequired[selectedPosition] -= 1
-            selectedPlayer.selected = True
             teamSelected.append(selection)
         for selection in teamSelected:
             selection['player'].selected = False

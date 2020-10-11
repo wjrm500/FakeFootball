@@ -128,3 +128,18 @@ print(matchEngine.potentials)
 print('\n')
 result = matchEngine.playMatch()
 print(result)
+
+### Assigning names to pickled TimeLord players
+i = 0
+for system in timeLord.systemController.systems:
+    for division in system.divisions:
+        for club in division.clubs:
+            for player in club.squad:
+                player.name = Utils.generatePlayerName()
+                i += 1
+                print(i)
+
+outfile = open('timeLord', 'wb')
+pickle.dump(timeLord, outfile)
+outfile.close()
+exit()

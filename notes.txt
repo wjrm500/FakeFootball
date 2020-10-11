@@ -9,3 +9,6 @@ Player has birthday, which means player has exact decimal age and rating changes
 Player peak rating shifts every day
 Player has fatigue attribute which starts at 0, goes up a certain amount after a game, and then gradually falls daily. Fatigue affects game rating
 and injury likelihood
+
+Add national cup and global cup
+Add real player names

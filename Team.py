@@ -7,6 +7,7 @@ class Team:
         self.club = self.manager.club
         self.formation = formation
         self.teamSelected = teamSelected
+        self.players = [selection['player'] for selection in teamSelected]
         self.setAttributes()
         self.setOffenceDefence()
         
@@ -16,6 +17,7 @@ class Team:
             position = selection['position']
             player = selection['player']
             positionRating = player.positionRatings[position]
+            positionRating = positionRating - (positionRating * player.fatigue)
             for skill, value in player.skillDistribution.items():
                 attributes[skill] += (value * positionRating) / 10
         self.attributes = attributes

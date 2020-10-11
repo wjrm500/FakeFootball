@@ -84,8 +84,8 @@ def plotPlayer(player, axes, config):
 
         ### Add rating projection to plot
         if projectionOn and player.age != player.peakAge:
-            projectedSkillDistribution = player.getSkillDistribution(player.peakAge)
-            projectedPlayerRating = player.getRating(player.peakAge)
+            projectedSkillDistribution = player.setSkillDistribution(player.peakAge)
+            projectedPlayerRating = player.setRating(player.peakAge)
             projectedPoints = {}
             for j, (skill, projectedValue) in enumerate(projectedSkillDistribution.items()):
                 if scaleForOverallRatingOn:

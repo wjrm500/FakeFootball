@@ -1,25 +1,11 @@
-from SystemController import SystemController
-import numpy as np
-from PlayerController import PlayerController
-from Player import Player
-from config import systemConfig, playerConfig
+from TimeLord import TimeLord
+import pickle
+from datetime import datetime
 
-### Generate systems
-
-systemController = SystemController(systemConfig)
-systemController.initialise()
-
-### Generate players
-
-initialPlayerPoolSize = np.prod(list(systemConfig.values()))
-playerController = PlayerController()
-for _ in range(initialPlayerPoolSize):
-    playerController.addPlayer()
-
-### Add players to teams
-
-for system in systemController.systems:
-    for division in system.divisions:
-        for club in division.clubs:
-            randomPlayer = playerController.getRandomFreeAgent()
-            club.signPlayer(randomPlayer)
+print(datetime.now())
+timeLord = TimeLord(1900, 2000)
+timeLord.createUniverse()
+timeLord.timeTravel(300)
+division = timeLord.systemController.systems[0].divisions[0]
+division.displayLeagueTable()
+division.displayPlayerStats(stat = 'goals', numRecords = 100)

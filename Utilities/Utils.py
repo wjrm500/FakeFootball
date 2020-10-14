@@ -6,6 +6,7 @@ import random
 from datetime import date
 from dateutil.relativedelta import relativedelta
 import mysql.connector
+import copy
 
 cnx = mysql.connector.connect(user = "root",
                               password = "Gigabit123",
@@ -69,3 +70,14 @@ def getBirthDate(dateCreated, age):
     randomOrdinalDate = random.randint(ordinalStartDate, ordinalEndDate)
     randomDate = date.fromordinal(randomOrdinalDate)
     return randomDate
+
+def typeAgnosticOmit(dictionary, omittedKeys):
+    """Omits given keys from dictionary."""
+    output = copy.deepcopy(dictionary)
+    omittedKeys = omittedKeys if type(omittedKeys) == list else [omittedKeys]
+    for omittedKey in omittedKeys:
+        try:
+            del output[omittedKey]
+        except:
+            continue
+    return output

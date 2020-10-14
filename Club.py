@@ -3,9 +3,10 @@ from config import systemConfig
 from PersonController import PersonController
 
 class Club:
-    def __init__(self, division, name = None, manager = None, squad = None):
-        self.system = division.system
-        self.division = division
+    def __init__(self, division = None, name = None, manager = None, squad = None):
+        if division is not None:
+            self.system = division.system
+            self.division = division
         self.name = Utils.generateName(8) if name is None else name
         self.transferBudget = 0
         self.addManager(manager)

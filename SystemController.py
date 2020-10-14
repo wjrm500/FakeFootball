@@ -2,19 +2,23 @@ from System import System
 from schedule import schedule
 from datetime import date, timedelta
 from config import systemConfig
+import Utilities.Utils as Utils
+import copy
 
 class _SystemController:
-    def __init__(self):
-        self.systemConfig = systemConfig
+    def __init__(self, config):
+        self.config = copy.deepcopy(systemConfig)
+        if config is not None and config != systemConfig:
+            Utils.updateConfig(self.config, config)
         self.systems = []
         self.schedule = schedule
     
     def initialise(self):
-        for _ in range(self.systemConfig['numSystems']):
+        for _ in range(self.config['numSystems']):
             self.addSystem()
     
     def addSystem(self, name = None):
-        self.systems.append(System(self.systemConfig, name))
+        self.systems.append(System(self.config, name))
     
     def removeSystem(self, name):
         del self.systems[name]
@@ -42,13 +46,13 @@ class _SystemController:
                 if division.schedule.get(date):
                     fixtures = division.schedule[date]
                     for fixture in fixtures:
-                        division.playFixture(fixture)
+                        division.playFixture(date, fixture)
 
 
 _instance = None
 
-def SystemController():
+def SystemController(config = None):
     global _instance
     if _instance is None:
-        _instance = _SystemController()
+        _instance = _SystemController(config)
     return _instance

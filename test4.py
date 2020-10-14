@@ -1,22 +1,12 @@
-from PersonController import PersonController
-from Persons.Player import Player
-from datetime import date
-import matplotlib.pyplot as plt
+from Club import Club
+import Utilities.Utils as Utils
 
-personController = PersonController()
-player = personController.createPlayer(Player(personController, age = 15))
-ages, ratings, peakRatings = [], [], []
-retiredAlready = 0
-for i in range(7300):
-    ages.append(player.age)
-    ratings.append(player.rating)
-    peakRatings.append(player.peakRating)
-    if player.retired is True and retiredAlready == 0:
-        retiredAlready = 1
-        ageAtRetirement = player.age
-    personController.advance()
+d = {
+    'date': 'stuff',
+    Club(): 'stuff',
+    Club(): 'stuff'
+}
 
-plt.plot(ages, peakRatings)
-plt.plot(ages, ratings)
-plt.axvline(x = ageAtRetirement, c = 'red', ls = '--')
-plt.show()
+print([id(key) for key in d.keys()])
+x = Utils.typeAgnosticOmit(d, 'date')
+print([id(key) for key in x.keys()])

@@ -3,12 +3,12 @@ from PersonController import PersonController
 from datetime import date, timedelta
 
 class TimeLord:
-    def __init__(self, creationYear, armageddonYear):
+    def __init__(self, creationYear, armageddonYear, systemConfig = None):
         self.creationYear = creationYear
         self.armageddonYear = armageddonYear
         self.currentDate = date(creationYear, 1, 1)
         self.armageddonDate = date(armageddonYear, 1, 1)
-        self.systemController = SystemController()
+        self.systemController = SystemController(systemConfig)
         self.personController = PersonController(self.creationYear)
     
     def createUniverse(self):

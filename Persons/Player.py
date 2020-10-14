@@ -13,6 +13,7 @@ class Player(Person):
     def __init__(
         self,
         personController,
+        id,
         name = None,
         age = None,
         config = None,
@@ -22,46 +23,51 @@ class Player(Person):
         peakRating = None,
         underlyingSkillDistribution = None
         ):
-        super(Player, self).__init__(personController, name, age)
+        super(Player, self).__init__(personController, id, name, age)
         self.config = copy.deepcopy(playerConfig)
         if config is not None and config != playerConfig:
             Utils.updateConfig(self.config, config)
-        self.peakAge = self.setPeakAge() if peakAge is None else peakAge
-        self.growthSpeed = self.setGrowthSpeed() if growthSpeed is None else growthSpeed
-        self.retirementThreshold = self.setRetirementThreshold() if retirementThreshold is None else retirementThreshold
-        self.peakRating = self.setPeakRating() if peakRating is None else peakRating
+        self.setPeakAge(peakAge)
+        self.setGrowthSpeed(growthSpeed)
+        self.setRetirementThreshold(retirementThreshold)
+        self.setPeakRating(peakRating)
+        self.setRating()
         self.retired = False
-        self.rating = self.setRating()
-        self.underlyingSkillDistribution = self.setUnderlyingSkillDistribution() if underlyingSkillDistribution is None else underlyingSkillDistribution
-        self.skillDistribution = self.setSkillDistribution()
-        self.stats = self.setStats()
+        self.setUnderlyingSkillDistribution(underlyingSkillDistribution)
+        self.setSkillDistribution()
+        self.skillValues = self.setSkillValues()
         self.club = None
         self.injured = False
         self.fatigue = 0
+        self.matchReports = []
+        self.injuries = []
     
-    def setPeakAge(self):
-        return round(Utils.limitedRandNorm(self.config['peakAge']))
+    def setPeakAge(self, peakAge):
+        self.peakAge = peakAge if peakAge is not None else Utils.limitedRandNorm(self.config['peakAge'])
     
-    def setGrowthSpeed(self):
-        randIncline = Utils.limitedRandNorm(self.config['growthSpeed']['incline'])
-        randDecline = Utils.limitedRandNorm(self.config['growthSpeed']['decline'])
-        return {
-            'incline': randIncline,
-            'decline': randDecline
-        }
+    def setGrowthSpeed(self, growthSpeed):
+        if growthSpeed is not None:
+            self.growthSpeed = growthSpeed
+        else:
+            randIncline = Utils.limitedRandNorm(self.config['growthSpeed']['incline'])
+            randDecline = Utils.limitedRandNorm(self.config['growthSpeed']['decline'])
+            self.growthSpeed = {
+                'incline': randIncline,
+                'decline': randDecline
+            }
 
-    def setRetirementThreshold(self):
-        return Utils.limitedRandNorm(self.config['retirementThreshold'])
+    def setRetirementThreshold(self, retirementThreshold):
+        self.retirementThreshold = retirementThreshold if retirementThreshold is not None else Utils.limitedRandNorm(self.config['retirementThreshold'])
 
-    def setPeakRating(self):
-        return Utils.limitedRandNorm(self.config['peakRating'])
+    def setPeakRating(self, peakRating):
+        self.peakRating = peakRating if peakRating is not None else Utils.limitedRandNorm(self.config['peakRating'])
 
     def adjustPeakRating(self):
         mn, mx = self.config['peakRating']['min'], self.config['peakRating']['max']
         self.peakRating = Utils.limitedRandNorm({'mu': self.peakRating, 'sigma': 50 / (self.age ** 2), 'mn': mn, 'mx': mx})
 
     def setRating(self, age = None):
-        age = self.age if age is None else age
+        age = age if age is not None else self.age
         distanceFromPeakAge = abs(self.peakAge - age)
         direction = 'incline' if self.peakAge > age else 'decline'
         growthSpeedFactor = self.growthSpeed[direction]
@@ -69,7 +75,7 @@ class Player(Person):
         rating = self.peakRating * peakRatingFulfillment
         if direction == 'decline' and rating < (self.peakRating * self.retirementThreshold):
             self.retire()
-        return self.peakRating * peakRatingFulfillment
+        self.rating = self.peakRating * peakRatingFulfillment
 
     def rebalanceSkillDistribution(self, distribution):
         [skDiMn, skDiMx] = [value for value in list(self.config['skill']['distribution'].values())[2:4]]
@@ -88,7 +94,7 @@ class Player(Person):
                 distribution[key] = ((value * x) + len(distribution) - x) / len(distribution)
             x -= 0.1
     
-    def setUnderlyingSkillDistribution(self):
+    def setUnderlyingSkillDistribution(self, underlyingSkillDistribution):
         skills = self.config['skill']['skills']
         [skDiMu, skDiSg] = [value for value in list(self.config['skill']['distribution'].values())[0:2]]
         underlyingSkillDistribution = {skill: np.random.normal(skDiMu, skDiSg) for skill in skills}
@@ -101,7 +107,7 @@ class Player(Person):
         ### Rebalance - handle the passing of thresholds for minimum and maximum
         self.rebalanceSkillDistribution(underlyingSkillDistribution)
 
-        return underlyingSkillDistribution
+        self.underlyingSkillDistribution = underlyingSkillDistribution
 
     def setSkillDistribution(self, age = None):
         skillDistribution = copy.deepcopy(self.underlyingSkillDistribution)
@@ -153,16 +159,16 @@ class Player(Person):
         for skill, value in skillDistribution.items():
             skillDistribution[skill] = skillDistribution[skill] + (bestSkillDistribution[skill] - skillDistribution[skill]) * Utils.limitedRandNorm(normalisingFactor)
 
-        return skillDistribution
+        self.skillDistribution = skillDistribution
     
-    def setStats(self):
-        return {skill: self.rating * value for skill, value in self.skillDistribution.items()}
+    def setSkillValues(self):
+        self.skillValues = {skill: self.rating * value for skill, value in self.skillDistribution.items()}
 
     def retire(self):
         self.retired = True
     
     def recover(self):
-        self.fatigue -= self.skillDistribution['fitness'] / 25
+        self.fatigue -= self.skillDistribution['fitness'] / 50
         self.fatigue = 0 if self.fatigue < 0 else self.fatigue
         if self.injured:
             self.injured -= 1
@@ -181,12 +187,25 @@ class Player(Person):
                 probabilityArray = [probability / sum(probabilityArray) for probability in probabilityArray]
                 injuryLength = np.random.choice(itemArray, p = probabilityArray)
                 self.injured = injuryLength
+                self.injuries.append([self.personController.currentDate, injuryLength])
 
     def advance(self):
+        self.injure()
         super().advance()
         self.recover()
-        self.injure()
         self.adjustPeakRating()
-        self.rating = self.setRating()
+        self.setRating()
         self.setSkillDistribution()
-        self.setStats()
+        self.setSkillValues()
+    
+    def displayMatchReports(self):
+        for matchReport in self.matchReports:
+            print(
+                '{:10} --- Position: {} --- Goals: {} --- Assists: {} --- Performance Index: {:.2f}'.format(
+                    matchReport['date'].strftime('%d/%m/%Y'),
+                    matchReport['position'],
+                    matchReport['goals'],
+                    matchReport['assists'],
+                    matchReport['performanceIndex']
+                )
+            )

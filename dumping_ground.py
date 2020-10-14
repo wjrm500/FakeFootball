@@ -143,3 +143,37 @@ outfile = open('timeLord', 'wb')
 pickle.dump(timeLord, outfile)
 outfile.close()
 exit()
+
+personController = PersonController()
+player = personController.createPlayer(Player(personController, age = 15))
+ages, ratings, peakRatings = [], [], []
+retiredAlready = 0
+for i in range(7300):
+    ages.append(player.age)
+    ratings.append(player.rating)
+    peakRatings.append(player.peakRating)
+    if player.retired is True and retiredAlready == 0:
+        retiredAlready = 1
+        ageAtRetirement = player.age
+    personController.advance()
+
+plt.plot(ages, peakRatings)
+plt.plot(ages, ratings)
+plt.axvline(x = ageAtRetirement, c = 'red', ls = '--')
+plt.show()
+
+    # def setAttributes(self):
+    #     attributes = {skill: 0 for skill in playerConfig['skill']['skills']}
+    #     for selection in self.teamSelected:
+    #         player = selection['player']
+    #         playerRating = self.getPlayerRatingFromSelection(selection)
+    #         for skill, value in player.skillDistribution.items():
+    #             attributes[skill] += (value * playerRating) / 10
+    #     self.attributes = attributes
+    
+    # def setOffenceDefence(self):
+    #     self.offence, self.defence = 0, 0
+    #     for attributeKey in self.attributes.keys():
+    #         self.offence += self.attributes[attributeKey] * matchConfig['contribution'][attributeKey]['offence']
+    #         self.defence += self.attributes[attributeKey] * matchConfig['contribution'][attributeKey]['defence']
+    #     self.offence, self.defence = self.offence / 3, self.defence / 3

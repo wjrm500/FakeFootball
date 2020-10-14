@@ -5,8 +5,9 @@ from config import playerConfig, managerConfig
 import random
 
 class Person:
-    def __init__(self, personController, name = None, age = None):
+    def __init__(self, personController, id, name = None, age = None):
         self.personController = personController
+        self.id = id
         self.setName(name)
         self.setBirthDate(age)
         self.setAge()
@@ -29,4 +30,4 @@ class Person:
         self.age = td.days / 365.25
     
     def advance(self):
-        self.age = self.setAge()
+        self.setAge()

@@ -1,38 +1,33 @@
 import Utilities.Utils as Utils
 from config import systemConfig
 from PersonController import PersonController
+import random
 
 class Club:
-    def __init__(self, division = None, name = None, manager = None, squad = None):
-        if division is not None:
-            self.system = division.system
-            self.division = division
+    def __init__(self, league = None, name = None, manager = None, squad = None):
+        if league is not None:
+            self.system = league.system
+            self.league = league
         self.name = Utils.generateName(8) if name is None else name
         self.transferBudget = 0
-        self.addManager(manager)
-        self.populateSquad(squad)
         
-    def populateSquad(self, squad):
+    def populateSquad(self, squad = None):
         self.squad = []
         if squad is None:
-            personController = PersonController()
             while len(self.squad) < systemConfig['numPlayersPerTeam']:
-                player = personController.createPlayer()
-                if player.retired is False:
-                    self.addPlayer(player)
-        else:
-            for player in squad:
-                if player.retired is False:
-                    self.addPlayer(player)
+                personController = PersonController()
+                player = random.choice(personController.freeAgentPlayers)
+                personController.freeAgentPlayers.remove(player)
+                self.addFreeAgentPlayer(player)
     
-    def addPlayer(self, player, transferFee = 0):
+    def addFreeAgentPlayer(self, player):
         self.squad.append(player)
         player.club = self
-        self.transferBudget -= transferFee
     
-    def addManager(self, manager):
+    def addFreeAgentManager(self, manager = None):
         if manager is None:
             personController = PersonController()
-            manager = personController.createManager()
+            manager = random.choice(personController.freeAgentManagers)
+            personController.freeAgentManagers.remove(manager)
         self.manager = manager
         manager.club = self

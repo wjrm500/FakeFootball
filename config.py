@@ -1,8 +1,20 @@
 systemConfig = {
     'numSystems': 1,
-    'numDivisionsPerSystem': 1,
-    'numTeamsPerDivision': 20,
-    'numPlayersPerTeam': 20
+    'numLeaguesPerSystem': 4,
+    'numTeamsPerLeague': 20,
+    'numPlayersPerTeam': 40
+}
+
+knockoutConfig = {
+    'numTeamsPerStage': {
+        'preliminary': 32,
+        'roundOf64': 64,
+        'roundOf32': 32,
+        'roundOf16': 16,
+        'quarterFinals': 8,
+        'semiFinals': 4,
+        'final': 2
+    }
 }
 
 playerConfig = {
@@ -18,10 +30,10 @@ playerConfig = {
             'max': 1.25
         },
         'decline': {
-            'mean': 1,
+            'mean': 0.875,
             'stDev': 0.1,
-            'min': 0.5,
-            'max': 1.5
+            'min': 0.375,
+            'max': 1.375
         }
     },
     'peakAge': {
@@ -147,10 +159,10 @@ playerConfig = {
         # 'CB': {'skillDistribution': {'offence': 0.72, 'spark': 0.77, 'technique': 0.92, 'defence': 1.35, 'authority': 1.26, 'fitness': 0.98}}
     },
     'retirementThreshold': {
-        'mean': 0.85,
+        'mean': 0.80,
         'stDev': 0.025,
-        'min': 0.75,
-        'max': 0.95
+        'min': 0.70,
+        'max': 0.90
     },
     'skill': {
         'distribution': {

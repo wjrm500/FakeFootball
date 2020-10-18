@@ -1,19 +1,22 @@
-from SystemController import SystemController
-from PersonController import PersonController
-from datetime import date, timedelta
+from Universe import Universe
+import datetime
+from Scheduler import Scheduler
 
 class TimeLord:
-    def __init__(self, creationYear, armageddonYear, systemConfig = None):
-        self.creationYear = creationYear
-        self.armageddonYear = armageddonYear
-        self.currentDate = date(creationYear, 1, 1)
-        self.armageddonDate = date(armageddonYear, 1, 1)
-        self.systemController = SystemController(systemConfig)
-        self.personController = PersonController(self.creationYear)
-    
+    def __init__(self, currentDate = None):
+        if currentDate is not None and type(currentDate) == datetime.date:
+            self.currentDate = currentDate
+        else:
+            self.currentDate = datetime.date(datetime.datetime.now().year, 1, 1)
+
     def createUniverse(self):
-        self.systemController.initialise()
-        self.systemController.scheduleFixtures(self.creationYear)
+        self.universe = Universe(self)
+        self.universe.populate()
+    
+    def scheduleFixtures(self):
+        for system in self.universe.systems:
+            for tournament in system.tournaments:
+                Scheduler.scheduleFixtures(self.currentDate.year, tournament)
     
     def timeTravel(self, days):
         for i in range(days):
@@ -22,24 +25,24 @@ class TimeLord:
             self.advanceOneDay()
     
     def resolveQuotidia(self):
-        self.systemController.playFixtures(self.currentDate)
+        self.universe.playFixtures(self.currentDate)
     
     def advanceOneDay(self):
         yearBefore = self.currentDate.year
-        self.currentDate += timedelta(days = 1)
+        self.currentDate += datetime.timedelta(days = 1)
         yearAfter = self.currentDate.year
         if yearBefore != yearAfter:
-            self.transition(yearBefore, yearAfter)
+            self.transitionSeasons(yearBefore, yearAfter)
             return
-        self.personController.advance()
+        self.universe.personController.advance()
 
     def transitionSeasons(self, oldYear, newYear):
         # ### Persist data
         # ### Promotion and relegation
-        # self.systemController.promoteRelegate()
+        # self.Universe.promoteRelegate()
         # ### Qualification for cups
         # ### Schedule fixtures
-        self.systemController.scheduleFixtures(newYear)
+        self.universe.scheduleFixtures(newYear)
         self.personController.updateYear()
         ### Player retirement
         ### Generate new players to replace retirees

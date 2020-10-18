@@ -7,6 +7,9 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 import mysql.connector
 import copy
+import pickle
+import glob
+import os
 
 cnx = mysql.connector.connect(user = "root",
                               password = "Gigabit123",
@@ -40,6 +43,9 @@ def generatePlayerName():
     forename = np.random.choice(forenames, p = forenameWeights)
     surname = np.random.choice(surnames, p = surnameWeights)
     return (forename, surname)
+
+def generateRandomDigits(n):
+    return ''.join(random.choice(string.digits) for _ in range(n))
 
 def limitValue(value, mn = None, mx = None):
     if mn is not None:
@@ -81,3 +87,17 @@ def typeAgnosticOmit(dictionary, omittedKeys):
         except:
             continue
     return output
+
+def pickleObject(obj):
+    objName = type(obj).__name__ + str(generateRandomDigits(5))
+    outfile = open(objName, 'wb')
+    pickle.dump(obj, outfile)
+    outfile.close()
+
+def unpickleMostRecent(path):
+    files = glob.glob(path + '/*')
+    latestPickleFileName = max(files, key = os.path.getctime)
+    latestPickle = open(latestPickleFileName, 'rb')
+    latestPickleUnpickled = pickle.load(latestPickle)
+    latestPickle.close()
+    return latestPickleUnpickled

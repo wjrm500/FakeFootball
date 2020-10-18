@@ -5,12 +5,14 @@ import Utilities.Utils as Utils
 import funcy
 
 class Match:
-    def __init__(self, competition, date, clubX, clubY, neutralVenue = False):
-        self.competition = competition
+    def __init__(self, fixture, tournament, date, clubX, clubY, neutralVenue = False):
+        ### TODO: Home advantage
+        self.fixture = fixture
+        self.tournament = tournament
         self.date = date
         self.clubX, self.clubY = clubX, clubY
         self.clubs = [self.clubX, self.clubY]
-        self.matchReport = {'date': self.date, 'clubs': {club: {} for club in self.clubs}}
+        self.matchReport = {'tournament': self.tournament, 'date': self.date, 'clubs': {club: {} for club in self.clubs}}
         report = self.matchReport
         for club in self.clubs:
             report['clubs'][club]['team'] = club.manager.selectTeam()
@@ -20,7 +22,7 @@ class Match:
         for club in self.clubs:
             oppositionClub = self.getOppositionClub(club)
             report['clubs'][club]['oppositionClub'] = funcy.omit(report['clubs'][oppositionClub], 'oppositionClub')
-    
+
     def getOppositionClub(self, club):
         return self.clubs[1 - self.clubs.index(club)]
 
@@ -48,6 +50,7 @@ class Match:
             report['clubs'][club]['match']['goalsAgainst'] = report['clubs'][oppositionClub]['match']['goalsFor']
             if report['clubs'][club]['match']['goalsFor'] > report['clubs'][club]['match']['goalsAgainst']:
                 report['clubs'][club]['match']['outcome'] = 'win'
+                self.matchReport['winner'] = club
             elif report['clubs'][club]['match']['goalsFor'] == report['clubs'][club]['match']['goalsAgainst']:
                 report['clubs'][club]['match']['outcome'] = 'draw'
             else:
@@ -92,6 +95,7 @@ class Match:
 
     def getPlayerReport(self, player, position, playerGoalLikelihood, playerAssistLikelihood):
         playerReport = {}
+        playerReport['tournament'] = self.tournament 
         playerReport['date'] = self.date
         playerReport['position'] = position
         playerReport['fatigue'] = player.fatigue
@@ -157,4 +161,5 @@ class Match:
         return playerReport
     
     def fileMatchReport(self):
-        self.competition.handleMatchReport(self.matchReport)
+        self.fixture.handleMatchReport(self.matchReport)
+        self.tournament.handleMatchReport(self.matchReport)

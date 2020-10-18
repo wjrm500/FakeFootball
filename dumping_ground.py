@@ -131,7 +131,7 @@ print(result)
 
 ### Assigning names to pickled TimeLord players
 i = 0
-for system in timeLord.systemController.systems:
+for system in timeLord.Universe.systems:
     for division in system.divisions:
         for club in division.clubs:
             for player in club.squad:
@@ -177,3 +177,100 @@ plt.show()
     #         self.offence += self.attributes[attributeKey] * matchConfig['contribution'][attributeKey]['offence']
     #         self.defence += self.attributes[attributeKey] * matchConfig['contribution'][attributeKey]['defence']
     #     self.offence, self.defence = self.offence / 3, self.defence / 3
+
+        def getBestPlayers(self, position):
+        sortedPlayers = sorted(self.players, key = lambda x: x.rating, reverse = True)
+        if position is not None:
+            sortedPlayers = [player for player in sortedPlayers if player.bestPosition == position]
+        return sortedPlayers
+    
+    def displayBestPlayers(self, position = None, numRecords = 5):
+        x = self.getBestPlayers(position)
+        for player in x[0:numRecords]:
+            playerName = player.properName
+            club = player.club.name
+            ratPos = '{} rated {}'.format(str(int(round(player.rating))), player.bestPosition)
+            numGoals = self.goalscorers.count(player)
+            numAssists = self.assisters.count(player)
+            print('Player: {:30} - {:12} - Club: {} - {:2} goals and {:2} assists'.format(playerName, ratPos, club, numGoals, numAssists))
+    
+     def getPlayerStats(self, stat):
+        if stat == 'goals':
+            l = self.goalscorers
+        elif stat == 'assists':
+            l = self.assisters
+        x = [{'player': player, stat: l.count(player)} for player in set(l)]
+        x = sorted(x, key = lambda k: k[stat], reverse = True)
+        return x
+    
+    def displayPlayerStats(self, stat, numRecords):
+        x = self.getPlayerStats(stat)
+        for item in x[0:numRecords]:
+            playerName = ' '.join(item['player'].properName)
+            club = item['player'].club.name
+            numItems = item[stat]
+            ratPos = '{} rated {}'.format(str(int(round(item['player'].rating))), item['player'].bestPosition)
+            print('Player: {:30} - {:12} - Club: {} - {:2} {}'.format(playerName, ratPos, club, numItems, stat))
+
+        
+### This was in System
+
+    # def displayTopScorersAssisters(self):
+    #     for y, z in zip(
+    #         [self.goalscorers, self.assisters, self.goalscorers + self.assisters],
+    #         ['goals', 'assists', 'goals and assists']
+    #         ):
+    #         print('Top ranked players for {}:'.format(z))
+    #         y = [{'player': player, z: y.count(player)} for player in set(y)]
+    #         y = sorted(y, key = lambda x: x[z], reverse = True)
+    #         for item in y[0:5]:
+    #             playerName = item['player'].name
+    #             club = item['player'].club.name
+    #             numItems = item[z]
+    #             ratPos = '{} rated {}'.format(str(int(round(item['player'].rating))), item['player'].bestPosition)
+    #             if z in ['goals', 'assists']:
+    #                 print('Player: {} - {} - Club: {} - {:2} {}'.format(playerName, ratPos, club, numItems, z))
+    #             elif z == 'goals and assists':
+    #                 numGoals = self.goalscorers.count(item['player'])
+    #                 numAssists = self.assisters.count(item['player'])
+    #                 print('Player: {} - {} - Club: {} - {:2} goals and {:2} assists'.format(playerName, ratPos, club, numGoals, numAssists))
+    #         print('\n')
+
+        ### Schedule dates
+        currentDate = date(nationalKnockout.year, 1, 1)
+        while True:
+            if year(currentDate) > year: ### Exit loop when year changes / when fixtures have been exhausted
+                    return
+            def lookForFixtures(currentDate):
+                if currentDate.weekday() == 2:
+                    for roundKey, roundValue in nationalKnockout.fixtures.items():
+                        if None in fixture['dates']: ### Is there at least one vacant slot in this fixture?
+                            fixture['dates'][fixture['dates'].index(None)] = currentDate
+                            return
+            lookForFixtures(currentDate)
+            currentDate += timedelta(days = 1)
+
+        prelimTeams = nationalKnockout.clubs[-32:] ### Get 32 lowest-rated teams
+        nonPrelimTeams = nationalKnockout.clubs[:-32] ### Get all other teams (who do not take part in preliminary round)
+        ### Add preliminary teams to preliminary round
+        for prelimTeam in prelimTeams:
+            cls.updateNationalKnockoutFixtures(nationalKnockout, prelimTeam)
+        ### Add non-preliminary teams straight into Round of 64
+        for nonPrelimTeam in nonPrelimTeams:
+            cls.updateNationalKnockoutFixtures(nationalKnockout, nonPrelimTeam)
+    
+    # @classmethod
+    # def scheduleGlobalKnockoutFixtures(year, globalKnockout):
+    #     pass
+    
+    @classmethod
+    def updateNationalKnockoutFixtures(knockout, team):
+        for roundKey, roundValue in nationalKnockout.fixtures.items():
+            fixtures = roundValue['fixtures']
+            for fixture in fixtures:
+                if None in fixture['clubs']: ### Is there at least one vacant slot in this fixture?
+                    ### We have found the round we want to insert into. Now we need to insert into a random vacant position
+                    randomFixtureIndex = random.choice([i for i, fixture in enumerate(fixtures) if None in fixture['clubs']])
+                    randomSlotIndex = random.choice([i for i, slot in enumerate(fixture['clubs']) if slot is None])
+                    nationalKnockout.fixtures[roundKey]['fixtures'][randomFixtureIndex]['clubs'][randomSlotIndex] = team
+                    return

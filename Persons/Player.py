@@ -31,11 +31,11 @@ class Player(Person):
         self.setGrowthSpeed(growthSpeed)
         self.setRetirementThreshold(retirementThreshold)
         self.setPeakRating(peakRating)
-        self.setRating()
         self.retired = False
+        self.setRating()
         self.setUnderlyingSkillDistribution(underlyingSkillDistribution)
         self.setSkillDistribution()
-        self.skillValues = self.setSkillValues()
+        self.setSkillValues()
         self.club = None
         self.injured = False
         self.fatigue = 0
@@ -73,7 +73,7 @@ class Player(Person):
         growthSpeedFactor = self.growthSpeed[direction]
         peakRatingFulfillment = 1 - (distanceFromPeakAge ** 1.5 * 0.01 * growthSpeedFactor)
         rating = self.peakRating * peakRatingFulfillment
-        if direction == 'decline' and rating < (self.peakRating * self.retirementThreshold):
+        if direction == 'decline' and rating < (self.peakRating * self.retirementThreshold) and self.retired is False:
             self.retire()
         self.rating = self.peakRating * peakRatingFulfillment
 
@@ -166,6 +166,12 @@ class Player(Person):
 
     def retire(self):
         self.retired = True
+        if self in self.personController.activePlayers:
+            self.personController.activePlayers.remove(self)
+        self.personController.retiredPlayers.append(self)
+        if hasattr(self, 'club') and self.club:
+            self.club.squad.remove(self)
+            self.club = None
     
     def recover(self):
         self.fatigue -= self.skillDistribution['fitness'] / 50
@@ -187,7 +193,7 @@ class Player(Person):
                 probabilityArray = [probability / sum(probabilityArray) for probability in probabilityArray]
                 injuryLength = np.random.choice(itemArray, p = probabilityArray)
                 self.injured = injuryLength
-                self.injuries.append([self.personController.currentDate, injuryLength])
+                self.injuries.append([self.personController.universe.timeLord.currentDate, injuryLength])
 
     def advance(self):
         self.injure()

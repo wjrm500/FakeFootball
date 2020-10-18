@@ -1,4 +1,4 @@
-schedule = {
+leagueSchedule = {
 	1: [
 		{'homeSlot': 0, 'awaySlot': 19},
 		{'homeSlot': 1, 'awaySlot': 18},
@@ -454,5 +454,11 @@ schedule = {
 		{'homeSlot': 13, 'awaySlot': 8},
 		{'homeSlot': 12, 'awaySlot': 9},
 		{'homeSlot': 11, 'awaySlot': 10}
+	]
+}
+
+nationalKnockoutSchedule = {
+	1: [ # Preliminary round
+		{'homeSlot: '} # Fixture 1
 	]
 }

@@ -1,20 +1,8 @@
 systemConfig = {
     'numSystems': 1,
-    'numLeaguesPerSystem': 4,
-    'numTeamsPerLeague': 20,
-    'numPlayersPerTeam': 40
-}
-
-knockoutConfig = {
-    'numTeamsPerStage': {
-        'preliminary': 32,
-        'roundOf64': 64,
-        'roundOf32': 32,
-        'roundOf16': 16,
-        'quarterFinals': 8,
-        'semiFinals': 4,
-        'final': 2
-    }
+    'numLeaguesPerSystem': 1,
+    'numClubsPerLeague': 16,
+    'numPlayersPerClub': 40
 }
 
 playerConfig = {

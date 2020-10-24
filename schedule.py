@@ -457,7 +457,7 @@ leagueSchedule = {
 	]
 }
 
-nationalKnockoutSchedule = {
+systemKnockoutSchedule = {
 	1: [ # Preliminary round
 		{'homeSlot: '} # Fixture 1
 	]

@@ -10,6 +10,7 @@ import copy
 import pickle
 import glob
 import os
+import re
 
 cnx = mysql.connector.connect(user = "root",
                               password = "Gigabit123",
@@ -37,11 +38,19 @@ def loadPlayerNames():
     surnameWeights = [surnameWeight / sum(surnameWeights) for surnameWeight in surnameWeights]
     cursor.close()
 
+def sortMcAndOApostrophe(name):
+    rx = re.compile(r'(?:(?<=Mc)|(?<=O\'))([a-z])')
+    def repl(m):
+        char = m.group(1)
+        return char.upper()
+    return rx.sub(repl, name)
+
 def generatePlayerName():
     if 'forenames' not in globals():
         loadPlayerNames()
     forename = np.random.choice(forenames, p = forenameWeights)
     surname = np.random.choice(surnames, p = surnameWeights)
+    surname = sortMcAndOApostrophe(surname)
     return (forename, surname)
 
 def generateRandomDigits(n):
@@ -101,3 +110,18 @@ def unpickleMostRecent(path):
     latestPickleUnpickled = pickle.load(latestPickle)
     latestPickle.close()
     return latestPickleUnpickled
+
+def getAllPowersOfTwoLessThan(n): 
+    results = []; 
+    for i in range(n, 0, -1): 
+        if ((i & (i - 1)) == 0): 
+            results.append(i); 
+    return results
+
+def getHighestPowerOfTwoLessThan(n): 
+    result = 0; 
+    for i in range(n, 0, -1): 
+        if ((i & (i - 1)) == 0): 
+            result = i
+            break 
+    return result

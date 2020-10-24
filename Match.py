@@ -66,8 +66,10 @@ class Match:
                 position = select.position
                 report['clubs'][club]['players'][player] = self.getPlayerReport(player, position, playerGoalLikelihoods[player], playerAssistLikelihoods[player])
                 fitnessFromMean = meanFitness - player.skillValues['fitness']
-                mu = (np.power(np.e, fitnessFromMean / 10) / (np.power(np.e, fitnessFromMean / 10) + 1)) / 5
-                player.fatigue += Utils.limitedRandNorm({'mu': mu, 'sg': 0.02, 'mn': 0, 'mx': 0.25})
+                mu = ((np.power(np.e, fitnessFromMean / 10) / (np.power(np.e, fitnessFromMean / 10) + 1)) / 5) + 0.05
+                fatigueIncrease = Utils.limitedRandNorm({'mu': mu, 'sg': 0.02, 'mn': 0.05, 'mx': 0.25})
+                player.fatigue += fatigueIncrease
+                player.fatigueIncreases.append(fatigueIncrease)
     
     def getPlayerGoalLikelihoods(self, team):
         goalFactors = {}
@@ -139,11 +141,12 @@ class Match:
         playerReport['performanceData']['offensiveBoost'] = offensiveBoost ### TAGGED AS TEMPORARY
         playerReport['performanceData']['defensiveBoost'] = defensiveBoost ### TAGGED AS TEMPORARY
         playerPredictedGoals = teamPredictedGoalsFor * playerGoalLikelihood
-        ratingBoostForGoal = 1.5
+        goalDiff = abs(clubReport['match']['goalsFor'] - oppositionClubReport['match']['goalsFor'])
+        ratingBoostForGoal = 1.5 if goalDiff == 0 else 2.5 - np.power(goalDiff, (1 / 5))
         goalNegative = playerPredictedGoals * ratingBoostForGoal / 2 ### Dividing by 2 is a new addition intended to boost goal involvements and help compensate for the disproportionate effects of any potential 10-cap
         goalPositive = playerReport['goals'] * ratingBoostForGoal
         playerPredictedAssists = teamPredictedGoalsFor * 0.9 * playerAssistLikelihood
-        ratingBoostForAssist = 1
+        ratingBoostForAssist = 1 if goalDiff == 0 else 1.5 - np.power(goalDiff, (1 / 5))
         assistNegative = playerPredictedAssists * ratingBoostForAssist  / 2 ### Dividing by 2 is a new addition
         assistPositive = playerReport['assists'] * ratingBoostForAssist
         playerReport['performanceData']['predictedGoals'] = playerPredictedGoals ### TAGGED AS TEMPORARY

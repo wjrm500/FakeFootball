@@ -41,6 +41,8 @@ class Player(Person):
         self.fatigue = 0
         self.matchReports = []
         self.injuries = []
+        self.fatigueIncreases = []
+        self.fatigueReductions = []
     
     def setPeakAge(self, peakAge):
         self.peakAge = peakAge if peakAge is not None else Utils.limitedRandNorm(self.config['peakAge'])
@@ -174,7 +176,9 @@ class Player(Person):
             self.club = None
     
     def recover(self):
-        self.fatigue -= self.skillDistribution['fitness'] / 50
+        fatigueReduction = np.sqrt(self.skillValues['fitness']) / 50
+        self.fatigueReductions.append(fatigueReduction)
+        self.fatigue -= fatigueReduction
         self.fatigue = 0 if self.fatigue < 0 else self.fatigue
         if self.injured:
             self.injured -= 1

@@ -14,7 +14,7 @@ class Club:
     def populateSquad(self, squad = None):
         self.squad = []
         if squad is None:
-            while len(self.squad) < systemConfig['numPlayersPerTeam']:
+            while len(self.squad) < systemConfig['numPlayersPerClub']:
                 personController = PersonController()
                 player = random.choice(personController.freeAgentPlayers)
                 personController.freeAgentPlayers.remove(player)

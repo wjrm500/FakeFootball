@@ -4,11 +4,15 @@ Manager signs player rather than club?
 Manager needs name
 Config stuff in same folder
 
+player.rating * value / 100
 
 Player has birthday, which means player has exact decimal age and rating changes daily
 Player peak rating shifts every day
 Player has fatigue attribute which starts at 0, goes up a certain amount after a game, and then gradually falls daily. Fatigue affects game rating
 and injury likelihood
 
-Add national cup and global cup
-Add real player names
+GLobal knockout - two separate comps, one set of leagues, one knockout, contained under one class
+Make sure fatigue is working, injuries too
+Make sure best teams are in top division, worst teams in bottom
+DONE - Value of a goal / assist should not be set in stone - should either be higher if fewer goals in the game, or higher if fewer goals separating the teams
+Player form!

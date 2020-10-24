@@ -69,7 +69,7 @@ def plotPlayer(player, axes, config):
                 labelX = (value + labelOffset) * np.sin(angle)
                 labelY = (value + labelOffset) * np.cos(angle)
                 axes.plot((0, sidePointX), (0, sidePointY), color = 'blue', linewidth = 0.25)
-                labelText = "{}\n{}".format(skill, int(player.rating * value / 100)) if scaleForOverallRatingOn else "{0}\n{1:.1%}".format(skill, value)
+                labelText = "{}\n{}".format(skill, int(value)) if scaleForOverallRatingOn else "{0}\n{1:.1%}".format(skill, value)
                 axes.text(labelX, labelY, labelText, horizontalalignment = 'center', verticalalignment = 'center', fontdict = {'family': 'arial', 'size': 8})
         pointsList = list(points.values())
         pointsList.append(pointsList[0]) ### Duplicate first point as last point to complete the shape
@@ -139,7 +139,7 @@ def plotPlayer(player, axes, config):
         axes.text(
             -0.975 * frameSize,
             0.95 * frameSize,
-            player.name,
+            player.properName,
             horizontalalignment = 'left',
             verticalalignment = 'top',
             fontdict = (lambda a, b: a.update(b) or a)(copy.deepcopy(cornerFontDict), {'size': 14})

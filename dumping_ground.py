@@ -237,40 +237,40 @@ plt.show()
     #         print('\n')
 
         ### Schedule dates
-        currentDate = date(nationalKnockout.year, 1, 1)
+        currentDate = date(systemKnockout.year, 1, 1)
         while True:
             if year(currentDate) > year: ### Exit loop when year changes / when fixtures have been exhausted
                     return
             def lookForFixtures(currentDate):
                 if currentDate.weekday() == 2:
-                    for roundKey, roundValue in nationalKnockout.fixtures.items():
+                    for roundKey, roundValue in systemKnockout.fixtures.items():
                         if None in fixture['dates']: ### Is there at least one vacant slot in this fixture?
                             fixture['dates'][fixture['dates'].index(None)] = currentDate
                             return
             lookForFixtures(currentDate)
             currentDate += timedelta(days = 1)
 
-        prelimTeams = nationalKnockout.clubs[-32:] ### Get 32 lowest-rated teams
-        nonPrelimTeams = nationalKnockout.clubs[:-32] ### Get all other teams (who do not take part in preliminary round)
+        prelimTeams = systemKnockout.clubs[-32:] ### Get 32 lowest-rated teams
+        nonPrelimTeams = systemKnockout.clubs[:-32] ### Get all other teams (who do not take part in preliminary round)
         ### Add preliminary teams to preliminary round
         for prelimTeam in prelimTeams:
-            cls.updateNationalKnockoutFixtures(nationalKnockout, prelimTeam)
+            cls.updateSystemKnockoutFixtures(systemKnockout, prelimTeam)
         ### Add non-preliminary teams straight into Round of 64
         for nonPrelimTeam in nonPrelimTeams:
-            cls.updateNationalKnockoutFixtures(nationalKnockout, nonPrelimTeam)
+            cls.updateSystemKnockoutFixtures(systemKnockout, nonPrelimTeam)
     
     # @classmethod
     # def scheduleGlobalKnockoutFixtures(year, globalKnockout):
     #     pass
     
     @classmethod
-    def updateNationalKnockoutFixtures(knockout, team):
-        for roundKey, roundValue in nationalKnockout.fixtures.items():
+    def updateSystemKnockoutFixtures(knockout, team):
+        for roundKey, roundValue in systemKnockout.fixtures.items():
             fixtures = roundValue['fixtures']
             for fixture in fixtures:
                 if None in fixture['clubs']: ### Is there at least one vacant slot in this fixture?
                     ### We have found the round we want to insert into. Now we need to insert into a random vacant position
                     randomFixtureIndex = random.choice([i for i, fixture in enumerate(fixtures) if None in fixture['clubs']])
                     randomSlotIndex = random.choice([i for i, slot in enumerate(fixture['clubs']) if slot is None])
-                    nationalKnockout.fixtures[roundKey]['fixtures'][randomFixtureIndex]['clubs'][randomSlotIndex] = team
+                    systemKnockout.fixtures[roundKey]['fixtures'][randomFixtureIndex]['clubs'][randomSlotIndex] = team
                     return

@@ -2,6 +2,7 @@ import Utilities.Utils as Utils
 from config import systemConfig
 from PersonController import PersonController
 import random
+import numpy as np
 
 class Club:
     def __init__(self, league = None, name = None, manager = None, squad = None):
@@ -31,3 +32,6 @@ class Club:
             personController.freeAgentManagers.remove(manager)
         self.manager = manager
         manager.club = self
+    
+    def getAverageRating(self):
+        return np.mean([player.rating for player in self.squad])

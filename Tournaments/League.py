@@ -5,6 +5,7 @@ from Match import Match
 import Utilities.Utils as Utils
 import numpy as np
 from Tournaments.Tournament import Tournament
+import random
 
 class League(Tournament):   
     def __init__(self, system, tier):
@@ -13,11 +14,15 @@ class League(Tournament):
     
     def populateWithClubs(self, clubs):
         super().populateWithClubs(clubs)
+        if type(self).__name__ != "Group":
+            for club in clubs:
+                club.setLeague(self)
         self.leagueTable = {}
         for club in self.clubs:
-            self.leagueTable[club] = {}
-            for stat in ['GP', 'W', 'D', 'L', 'GF', 'GA', 'GD', 'Pts']:
-                self.leagueTable[club][stat] = 0
+            if type(club).__name__ == 'Club':
+                self.leagueTable[club] = {}
+                for stat in ['GP', 'W', 'D', 'L', 'GF', 'GA', 'GD', 'Pts']:
+                    self.leagueTable[club][stat] = 0
     
     def handleMatchReport(self, matchReport):
         super().handleMatchReport(matchReport)
@@ -38,10 +43,17 @@ class League(Tournament):
     def displayLeagueTable(self):
         sortedClubs = sorted(self.leagueTable.items(), key = lambda x: x[1]['Pts'], reverse = True)
         for i, (club, data) in enumerate(sortedClubs):
-            x = '{:2}. {} --- '.format(i + 1, club.name)
+            x = '{:2}. {:21} --- '.format(i + 1, club.name)
             for key, value in data.items():
                 x += '{}: {:3}     '.format(key, value)
             team = club.manager.selectTeam()
             x += 'Offence: {} --- Defence: {}'.format(int(round(team.offence)), int(round(team.defence)))
             print(x)
         print('\n')
+    
+    def checkComplete(self):
+        return all([fixture.played for fixture in self.fixtures])
+    
+    def getClubByRank(self, rank):
+        sortedClubs = sorted(self.leagueTable.items(), key = lambda x: x[1]['Pts'], reverse = True)
+        return sortedClubs[rank][0] ### Does this return a club?

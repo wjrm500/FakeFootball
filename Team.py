@@ -26,7 +26,7 @@ class Team:
         player = select.player
         position = select.position
         selectRating = player.positionRatings[position]
-        return selectRating - (selectRating * player.fatigue)
+        return selectRating - (selectRating * player.fatigue) + ((selectRating * player.form) / 100)
     
     def setRating(self):
         self.rating = np.mean(list(map(self.getSelectRating, self.selection)))

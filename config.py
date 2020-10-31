@@ -1,8 +1,8 @@
 systemConfig = {
-    'numSystems': 1,
+    'numSystems': 4,
     'numLeaguesPerSystem': 1,
-    'numClubsPerLeague': 16,
-    'numPlayersPerClub': 40
+    'numClubsPerLeague': 10,
+    'numPlayersPerClub': 20
 }
 
 playerConfig = {
@@ -304,6 +304,7 @@ managerConfig = {
 }
 
 matchConfig = {
+    'homeAwayDifferential': 0.05, ### 2.5% boost for home team stats, 2.5% reduction for away team stats
     'contribution': {
         'offence': {
             'offence': 1.0,

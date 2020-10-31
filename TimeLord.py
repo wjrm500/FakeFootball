@@ -1,22 +1,27 @@
 from Universe import Universe
+from config import systemConfig
 import datetime
-from Scheduler import Scheduler
+import copy
+import Utilities.Utils as Utils
 
 class TimeLord:
-    def __init__(self, currentDate = None):
-        if currentDate is not None and type(currentDate) == datetime.date:
-            self.currentDate = currentDate
+    def __init__(self, config = None, creationDate = None):
+        self.config = copy.deepcopy(systemConfig)
+        if config is not None and config != systemConfig:
+            Utils.updateConfig(self.config, config)
+        if creationDate is not None and type(creationDate) == datetime.date:
+            self.creationDate = creationDate
         else:
-            self.currentDate = datetime.date(datetime.datetime.now().year, 1, 1)
+            self.creationDate = datetime.date(datetime.datetime.now().year, 1, 1)
+        self.currentDate = self.creationDate
+    
+    def getDaysSinceCreation(self):
+        delta = self.currentDate - self.creationDate
+        return delta.days
 
     def createUniverse(self):
         self.universe = Universe(self)
         self.universe.populate()
-    
-    def scheduleFixtures(self):
-        for system in self.universe.systems:
-            for tournament in system.tournaments:
-                Scheduler.scheduleFixtures(self.currentDate.year, tournament)
     
     def timeTravel(self, days):
         for i in range(days):

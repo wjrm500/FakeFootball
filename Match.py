@@ -6,7 +6,6 @@ import funcy
 
 class Match:
     def __init__(self, fixture, tournament, date, clubX, clubY, neutralVenue = False):
-        ### TODO: Home advantage
         self.fixture = fixture
         self.tournament = tournament
         self.date = date
@@ -16,9 +15,11 @@ class Match:
         report = self.matchReport
         for club in self.clubs:
             report['clubs'][club]['team'] = club.manager.selectTeam()
-        for club in self.clubs: ### Need second round of iteration as the following can only be calculated after both teams have been generated
-            oppositionClub = self.getOppositionClub(club)
-            report['clubs'][club]['potential'] = report['clubs'][club]['team'].offence - report['clubs'][oppositionClub]['team'].defence            
+        homeMultiplier, awayMultiplier = 1 + (matchConfig['homeAwayDifferential'] / 2), 1 - (matchConfig['homeAwayDifferential'] / 2)
+        report['clubs'][self.clubX]['potential'] = report['clubs'][self.clubX]['team'].offence * homeMultiplier - report['clubs'][self.clubY]['team'].defence * awayMultiplier
+        report['clubs'][self.clubY]['potential'] = report['clubs'][self.clubY]['team'].offence * awayMultiplier - report['clubs'][self.clubX]['team'].defence * homeMultiplier
+        clubXPot = report['clubs'][self.clubX]['potential']
+        clubYPot = report['clubs'][self.clubY]['potential']  
         for club in self.clubs:
             oppositionClub = self.getOppositionClub(club)
             report['clubs'][club]['oppositionClub'] = funcy.omit(report['clubs'][oppositionClub], 'oppositionClub')
@@ -69,7 +70,6 @@ class Match:
                 mu = ((np.power(np.e, fitnessFromMean / 10) / (np.power(np.e, fitnessFromMean / 10) + 1)) / 5) + 0.05
                 fatigueIncrease = Utils.limitedRandNorm({'mu': mu, 'sg': 0.02, 'mn': 0.05, 'mx': 0.25})
                 player.fatigue += fatigueIncrease
-                player.fatigueIncreases.append(fatigueIncrease)
     
     def getPlayerGoalLikelihoods(self, team):
         goalFactors = {}
@@ -97,7 +97,7 @@ class Match:
 
     def getPlayerReport(self, player, position, playerGoalLikelihood, playerAssistLikelihood):
         playerReport = {}
-        playerReport['tournament'] = self.tournament 
+        playerReport['tournament'] = self.tournament.tournament if type(self.tournament).__name__ == 'Group' else self.tournament
         playerReport['date'] = self.date
         playerReport['position'] = position
         playerReport['fatigue'] = player.fatigue

@@ -1,44 +1,50 @@
 from Fixture import Fixture
-from TwoLegKnockoutMatchContainer import TwoLegKnockoutMatchContainer
+from Tie import Tie
 import random
+from TournamentStage import TournamentStage
 
-class KnockoutStage:
+class KnockoutStage(TournamentStage):
     def __init__(self, tournament, stage):
-        self.tournament = tournament
-        self.stage = stage
-        if self.stage == 'final':
+        super().__init__(tournament, stage)
+        if self.stage == 'Final':
             self.fixture = Fixture(self.tournament)
         else:
-            if self.stage == 'semiFinals':
+            if self.stage == 'Semi Finals':
                 numClubsInStage = 4
-            elif self.stage == 'quarterFinals':
+            elif self.stage == 'Quarter Finals':
                 numClubsInStage = 8
+            elif self.stage == 'Preliminary Stage':
+                numClubsInStage = self.tournament.numClubsInPreliminaryStage
             else:
-                numClubsInStage = int(self.stage[7:])
-            self.initialiseEmptyTwoLegKnockouts(int(numClubsInStage / 2))
-        self.complete = False
+                numClubsInStage = int(self.stage[9:])
+            self.initialiseEmptyTies(int(numClubsInStage / 2))
     
-    def initialiseEmptyTwoLegKnockouts(self, n):
+    def initialiseEmptyTies(self, n):
         self.firstLegs, self.secondLegs, self.ties = [], [], []
         for i in range(n):
             firstLeg, secondLeg = Fixture(self.tournament), Fixture(self.tournament)
             self.firstLegs.append(firstLeg)
             self.secondLegs.append(secondLeg)
-            self.ties.append(TwoLegKnockoutMatchContainer([firstLeg, secondLeg]))
+            self.ties.append(Tie([firstLeg, secondLeg]))
     
-    def draw(self, clubs):
-        for i in range(int(len(clubs) / 2)):
-            pot = clubs
+    def draw(self, pot, drawType = 'normal'):
+        numClubs = sum([len(value) for value in pot.values()]) if type(pot) == dict else len(pot)
+        if drawType == 'normal':
             random.shuffle(pot)
-            clubX, clubY = pot.pop(), pot.pop()
-            if self.stage == 'final':
+        elif drawType == 'firstVsSecond':
+            for weePot in [pot['firsts'], pot['seconds']]:
+                random.shuffle(weePot)
+        for i in range(int(numClubs / 2)):
+            clubX = pot['firsts'].pop() if drawType == 'firstVsSecond' else pot.pop()
+            clubY = pot['seconds'].pop() if drawType == 'firstVsSecond' else pot.pop()
+            if self.stage == 'Final':
                 self.fixture.addClubs(clubX, clubY)
             else:
                 self.ties[i].fixtures['firstLeg'].addClubs(clubX, clubY) ### First leg
                 self.ties[i].fixtures['secondLeg'].addClubs(clubY, clubX) ### Second leg
 
     def checkNewlyComplete(self):
-        if self.stage == 'final':
+        if self.stage == 'Final':
             if self.complete == False and self.fixture.played == True:
                 self.complete = True
                 return True

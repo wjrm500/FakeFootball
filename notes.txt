@@ -16,3 +16,18 @@ Make sure fatigue is working, injuries too
 Make sure best teams are in top division, worst teams in bottom
 DONE - Value of a goal / assist should not be set in stone - should either be higher if fewer goals in the game, or higher if fewer goals separating the teams
 Player form!
+
+Home away boost -  DONE
+
+Have added player form in but need to make sure it's working properly and also that form and fatigue are taken into account in both
+the actual generation of the score and the player report generation
+
+Dynamically work out when national cup should finish and schedule fixtures back from this point, rather than forward from start of year
+
+
+Top ranked teams in group stage drawn against second ranked teams
+Inferior Universal Tournament
+
+Group stage player statistics not included in overall tournament statistics
+
+Managers should be able to select different formation

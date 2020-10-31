@@ -15,12 +15,15 @@ class Fixture:
         self.date = date
 
     def play(self):
-        match = Match(self, self.tournament, self.date, self.clubX, self.clubY)
-        match.play()
-        match.fileMatchReport()
+        self.match = Match(self, self.tournament, self.date, self.clubX, self.clubY)
+        self.match.play()
+        self.match.fileMatchReport()
         self.played = True
-        if type(self.tournament).__name__ == 'SystemKnockout':
-            self.tournament.checkAdvance()
+        if type(self.tournament).__name__ != 'League':
+            if type(self.tournament).__name__ == 'Group':
+                self.tournament.tournament.checkAdvance()
+            else:
+                self.tournament.checkAdvance()
     
     def handleMatchReport(self, matchReport):
         self.goals = {}

@@ -2,7 +2,7 @@ import sys
 sys.path.append('.')
 from Tournaments.Knockout import Knockout
 from KnockoutStage import KnockoutStage
-from TwoLegKnockoutMatchContainer import TwoLegKnockoutMatchContainer
+from Tie import Tie
 from Scheduler import Scheduler
 import Utilities.Utils as Utils
 
@@ -22,32 +22,33 @@ class SystemKnockout(Knockout):
         clubsByStages = list(filter(lambda x: x != 1, clubsByStages))
         for clubsByStage in clubsByStages:
             if clubsByStage == 2:
-                stageName = 'final'
+                stageName = 'Final'
             elif clubsByStage == 4:
-                stageName = 'semiFinals'
+                stageName = 'Semi Finals'
             elif clubsByStage == 8:
-                stageName = 'quarterFinals'
+                stageName = 'Quarter Finals'
             else:
-                stageName = 'roundOf{}'.format(clubsByStage)
+                stageName = 'Round of {}'.format(clubsByStage)
             self.stages.append(KnockoutStage(self, stageName))
-        if self.numClubs not in clubsByStages: ### Is preliminary stage needed?
-            self.stages.insert(0, KnockoutStage(self, 'preliminary'))
+        if self.numClubs not in clubsByStages: ### Is preliminary stage necessary?
             numClubsToEliminateInPreliminary = self.numClubs - max(clubsByStages)
-            numClubsInPreliminaryStage = numClubsToEliminateInPreliminary * 2
-            self.populatePreliminaryStage(numClubsInPreliminaryStage)
+            self.numClubsInPreliminaryStage = numClubsToEliminateInPreliminary * 2
+            self.stages.insert(0, KnockoutStage(self, 'Preliminary Stage'))
+            self.populatePreliminaryStage()
         else:
             self.stages[0].draw(self.clubs.copy())
         i = 1
         self.schedule = {}
         for stage in self.stages:
-            if stage.stage == 'final':
+            if stage.stage == 'Final':
                 self.schedule[i] = [stage.fixture]
             else:
                 for legs in [stage.firstLegs, stage.secondLegs]:
                     self.schedule[i] = legs
                     i += 1
     
-    def populatePreliminaryStage(self, numClubs):
-        self.prelimClubs = self.clubs[-numClubs:]
-        self.nonPrelimClubs = self.clubs[:-numClubs]
-        self.stages[0].draw(self.prelimClubs)
+    def populatePreliminaryStage(self):
+        numClubs = self.numClubsInPreliminaryStage
+        self.preliminaryClubs = self.clubs[-numClubs:]
+        self.nonPreliminaryClubs = self.clubs[:-numClubs]
+        self.stages[0].draw(self.preliminaryClubs)

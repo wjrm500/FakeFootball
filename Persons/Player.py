@@ -39,10 +39,11 @@ class Player(Person):
         self.club = None
         self.injured = False
         self.fatigue = 0
-        self.matchReports = []
+        self.playerReports = []
         self.injuries = []
-        self.fatigueIncreases = []
-        self.fatigueReductions = []
+        self.form = 0
+        self.ratings = {}
+        self.forms = {}
     
     def setPeakAge(self, peakAge):
         self.peakAge = peakAge if peakAge is not None else Utils.limitedRandNorm(self.config['peakAge'])
@@ -177,13 +178,13 @@ class Player(Person):
     
     def recover(self):
         fatigueReduction = np.sqrt(self.skillValues['fitness']) / 50
-        self.fatigueReductions.append(fatigueReduction)
         self.fatigue -= fatigueReduction
         self.fatigue = 0 if self.fatigue < 0 else self.fatigue
         if self.injured:
             self.injured -= 1
         if self.injured == 0:
             self.injured = False
+        self.form -= self.form / 25
     
     def injure(self):
         if self.injured is False:
@@ -207,15 +208,107 @@ class Player(Person):
         self.setRating()
         self.setSkillDistribution()
         self.setSkillValues()
+        self.storeRatingsAndForm()
     
-    def displayMatchReports(self):
-        for matchReport in self.matchReports:
+    def handlePlayerReport(self, playerReport):
+        if playerReport not in self.playerReports: ### Prevent duplication from Universal Tournament group stage matches, which are handled by both the group and the wider tournament
+            self.playerReports.append(playerReport)
+            outperformance = playerReport['performanceIndex'] - playerReport['performanceData']['baseRating']
+            gameFormValue = outperformance / 2
+            gravity = self.form / 2
+            self.form += (gameFormValue - gravity)
+            self.form = Utils.limitValue(self.form, mn = -10, mx = 10)
+    
+    def displayPlayerReports(self):
+        for playerReport in self.playerReports:
             print(
-                '{:10} --- Position: {} --- Goals: {} --- Assists: {} --- Performance Index: {:.2f}'.format(
-                    matchReport['date'].strftime('%d/%m/%Y'),
-                    matchReport['position'],
-                    matchReport['goals'],
-                    matchReport['assists'],
-                    matchReport['performanceIndex']
+                '{:10} --- {:30} --- Position: {} --- Goals: {} --- Assists: {} --- Performance Index: {:.2f}'.format(
+                    playerReport['date'].strftime('%d/%m/%Y'),
+                    type(playerReport['tournament']).__name__,
+                    playerReport['position'],
+                    playerReport['goals'],
+                    playerReport['assists'],
+                    playerReport['performanceIndex']
                 )
             )
+    
+    def getPerformanceIndices(self):
+        if len(self.playerReports) == 0:
+            return None
+        seasonData = {}
+        for playerReport in self.playerReports:
+            if not seasonData.get(playerReport['tournament']):
+                seasonData[playerReport['tournament']] = {
+                    'games': 0,
+                    'goals': 0,
+                    'assists': 0,
+                    'performanceIndex': []
+                }
+            seasonData[playerReport['tournament']]['games'] += 1
+            seasonData[playerReport['tournament']]['goals'] += playerReport['goals']
+            seasonData[playerReport['tournament']]['assists'] += playerReport['assists']
+            seasonData[playerReport['tournament']]['performanceIndex'].append(playerReport['performanceIndex'])
+        for tournament, data in seasonData.items():
+            seasonData[tournament]['performanceIndex'] = np.mean(data['performanceIndex'])
+        overallSeasonData = {}
+        for metric in ['games', 'goals', 'assists']:
+            overallSeasonData[metric] = sum([data[metric] for data in seasonData.values()])
+        overallSeasonData['performanceIndex'] = sum([data['games'] * data['performanceIndex'] for data in seasonData.values()]) / sum([data['games'] for data in seasonData.values()])
+        return [seasonData, overallSeasonData]
+
+    def displayPerformanceIndices(self):
+        if len(self.playerReports) == 0:
+            return None
+        seasonData, overallSeasonData = self.getPerformanceIndices()
+        print('{:20}{:>46}'.format(
+            self.properName,
+            '{} rated {:3}'.format(int(self.rating), self.bestPosition)
+            )
+        )
+        print('-' * 66)
+        for tournament, data in seasonData.items():
+            print('{:30} - GP: {:2} - G: {:2} - A: {:2} - PI: {:.2f}'.format(
+                type(tournament).__name__,
+                data['games'],
+                data['goals'],
+                data['assists'],
+                data['performanceIndex']
+                )
+            )
+        print('-' * 66)
+        print('{:30} - GP: {:2} - G: {:2} - A: {:2} - PI: {:.2f}'.format(
+                'Total',
+                overallSeasonData['games'],
+                overallSeasonData['goals'],
+                overallSeasonData['assists'],
+                overallSeasonData['performanceIndex']
+                )
+            )
+    
+    def displayOneLinePerformanceIndices(self, competitions):
+        if len(self.playerReports) == 0:
+            return None
+        seasonData, overallSeasonData = self.getPerformanceIndices()
+        printArray = []
+        for competition in competitions:
+            if seasonData.get(competition):
+                data = seasonData[competition]
+                printArray.append('{:2} / {:2} / {:2} / {}'.format(data['games'], data['goals'], data['assists'], str(data['performanceIndex'])[:4]))
+            else:
+                printArray.append('{:2} / {:2} / {:2} / {:.2f}'.format(0, 0, 0, 0))
+        printArray.append('{:2} / {:2} / {:2} / {}'.format(
+            overallSeasonData['games'],
+            overallSeasonData['goals'],
+            overallSeasonData['assists'],
+            str(overallSeasonData['performanceIndex'])[:4]
+            )
+        )
+        joiner = ' ' * 5
+        printArray = joiner.join(printArray)
+        print('{:25} {:15} {}'.format(self.properName, '{} rated {:3}'.format(int(self.rating), self.bestPosition), printArray))
+                
+
+    def storeRatingsAndForm(self):
+        currentDate = self.personController.universe.timeLord.currentDate
+        self.ratings[currentDate] = self.rating
+        self.forms[currentDate] = self.form

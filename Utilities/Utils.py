@@ -11,6 +11,7 @@ import pickle
 import glob
 import os
 import re
+import joblib
 
 cnx = mysql.connector.connect(user = "root",
                               password = "Gigabit123",
@@ -101,6 +102,12 @@ def pickleObject(obj):
     objName = type(obj).__name__ + str(generateRandomDigits(5))
     outfile = open(objName, 'wb')
     pickle.dump(obj, outfile)
+    outfile.close()
+
+def pickleLargeObject(obj):
+    objName = type(obj).__name__ + str(generateRandomDigits(5))
+    outfile = open(objName, 'wb')
+    joblib.dump(obj, outfile)
     outfile.close()
 
 def unpickleMostRecent(path):

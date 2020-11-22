@@ -39,16 +39,18 @@ class TimeLord:
         if yearBefore != yearAfter:
             self.transitionSeasons(yearBefore, yearAfter)
             return
-        self.universe.personController.advance()
+        for controller in self.universe.personControllers:
+            controller.advance()
 
     def transitionSeasons(self, oldYear, newYear):
+        pass
         # ### Persist data
         # ### Promotion and relegation
         # self.Universe.promoteRelegate()
         # ### Qualification for cups
         # ### Schedule fixtures
-        self.universe.scheduleFixtures(newYear)
-        self.personController.updateYear()
+        # self.universe.scheduleFixtures(newYear)
+        # self.personController.updateYear()
         ### Player retirement
         ### Generate new players to replace retirees
         # ### Transfers

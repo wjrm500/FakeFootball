@@ -29,7 +29,7 @@ class System:
         db = Database.getInstance()
         db.cursor.execute('SELECT `city_name` FROM `city` WHERE `system_id` = {} ORDER BY RAND() LIMIT {}'.format(self.id, numClubs))
         cityNames = [row['city_name'] for row in db.cursor.fetchall()]
-        self.clubs = [Club(cityName) for cityName in cityNames]
+        self.clubs = [Club(self, cityName) for cityName in cityNames]
     
     def sortClubsByRating(self):
         self.clubs.sort(key = lambda x: x.getRating(), reverse = True)
@@ -40,7 +40,9 @@ class System:
         for league in self.leagues:
             poppedClubs = [clubsForPopping.pop(0) for i in range(self.universe.config['numClubsPerLeague'])]
             league.populateWithClubs(poppedClubs)
-        
+            for club in league.clubs:
+                club.prepareFeaturesForGetting()
+
     def getRating(self):
         relevantClubs = self.leagues[0].clubs[:8] ### Only the ratings of the top 8 clubs are relevant for Universal Knockouts
         return np.mean([club.getRating() for club in relevantClubs])

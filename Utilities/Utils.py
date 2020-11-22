@@ -132,3 +132,14 @@ def getHighestPowerOfTwoLessThan(n):
             result = i
             break 
     return result
+
+def printCodeTimeTaken(code):
+    global datetimeNow
+    global datetimePrevious
+    datetimeNow = datetime.now()
+    if 'datetimePrevious' in globals():
+        timeTaken = datetimeNow - datetimePrevious
+    else:
+        timeTaken = 0
+    print('Code: {} --- Time taken: {}'.format(code, timeTaken))
+    datetimePrevious = datetimeNow

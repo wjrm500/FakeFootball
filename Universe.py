@@ -1,8 +1,14 @@
+import sys
+sys.path.append('.')
 from System import System
 from config import systemConfig
 import Utilities.Utils as Utils
 import copy
-from PersonController import PersonController
+from Persons.Controllers.Subcontrollers.ManagerController import ManagerController
+from Persons.Controllers.Subcontrollers.NegotiatorController import NegotiatorController
+from Persons.Controllers.Subcontrollers.PhysiotherapistController import PhysiotherapistController
+from Persons.Controllers.Subcontrollers.PlayerController import PlayerController
+from Persons.Controllers.Subcontrollers.ScoutController import ScoutController
 import numpy as np
 from Database import Database
 from universal_tournament_qualification import universalTournamentQualification
@@ -14,7 +20,13 @@ class _Universe:
     def __init__(self, timeLord):
         self.timeLord = timeLord
         self.config = timeLord.config
-        self.personController = PersonController(self)
+        self.personControllers = [
+            ManagerController(self),
+            NegotiatorController(self),
+            PhysiotherapistController(self),
+            PlayerController(self),
+            ScoutController(self)
+        ]
         self.systems = []
         self.numSystems = 0
     
@@ -24,8 +36,16 @@ class _Universe:
         systemIds = [row['system_id'] for row in db.cursor.fetchall()]
         for systemId in systemIds:
             self.addSystem(systemId)
-        self.personController.populateActiveManagerPool(np.product(list(self.config.values())[:-1]))
-        self.personController.populateActivePlayerPool(np.product(list(self.config.values())))
+        for personController in self.personControllers:
+            numRequired = np.product(
+                [
+                    self.config['numSystems'],
+                    self.config['numLeaguesPerSystem'],
+                    self.config['numClubsPerLeague'],
+                    self.config['numPersonnelPerClub'][personController.role]
+                ]
+            )
+            personController.populateActiveUnitPool(numRequired)
         self.initialiseSystemTournaments()
         self.initialiseUniversalTournaments()
         
@@ -51,8 +71,7 @@ class _Universe:
             system.addSystemKnockout()
             system.addClubs()
             for club in system.clubs:
-                club.addFreeAgentManager()
-                club.populateSquad()
+                club.addPersonnel()
             system.populateLeaguesWithClubs()
             system.systemKnockout.populateWithClubs()
             system.systemKnockout.setStages()

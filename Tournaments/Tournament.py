@@ -28,6 +28,7 @@ class Tournament:
     def getPerformanceIndices(
         self,
         indices = ['games', 'goals', 'assists', 'performanceIndex'],
+        upToGameweek = None,
         sortBy = None,
         sortDir = None,
         clubs = None
@@ -35,24 +36,27 @@ class Tournament:
         performanceIndices = {}
         clubs = clubs if clubs is not None else self.clubs
         clubs = clubs if type(clubs) == list else [clubs]
+        upToGameweek = self.numClubs * 2 - 1 if upToGameweek is None else upToGameweek
         for club in clubs:
             club = self.universe.getClubByName(club) if type(club) == str else club
             for player in club.squad:
+                gamesPlayed = np.sum([1 for playerReport in player.playerReports if playerReport['tournament'] == self and playerReport['gameweek'] <= upToGameweek])
                 performanceIndices[player] = {}
                 if 'rating' in indices:
                     performanceIndices[player]['rating'] = player.rating
                 if 'games' in indices:
-                    performanceIndices[player]['games'] = np.sum([1 for playerReport in player.playerReports if playerReport['tournament'] == self])
+                    performanceIndices[player]['games'] = gamesPlayed
                 if 'goals' in indices:
-                    performanceIndices[player]['goals'] = np.sum([playerReport['goals'] for playerReport in player.playerReports if playerReport['tournament'] == self])
+                    performanceIndices[player]['goals'] = np.sum([playerReport['goals'] for playerReport in player.playerReports if playerReport['tournament'] == self and playerReport['gameweek'] <= upToGameweek])
                 if 'assists' in indices:
-                    performanceIndices[player]['assists'] = np.sum([playerReport['assists'] for playerReport in player.playerReports if playerReport['tournament'] == self])
+                    performanceIndices[player]['assists'] = np.sum([playerReport['assists'] for playerReport in player.playerReports if playerReport['tournament'] == self and playerReport['gameweek'] <= upToGameweek])
                 if 'performanceIndex' in indices:
-                    performanceIndices[player]['performanceIndex'] = np.mean([playerReport['performanceIndex'] for playerReport in player.playerReports if playerReport['tournament'] == self])
-                    if np.isnan(performanceIndices[player]['performanceIndex']):
+                    performanceIndices[player]['performanceIndex'] = np.mean([playerReport['performanceIndex'] for playerReport in player.playerReports if playerReport['tournament'] == self and playerReport['gameweek'] <= upToGameweek])
+                    ### If player has appeared in less than half of the games they are ineligible for Performance Index ranking
+                    if gamesPlayed < upToGameweek / 2 or np.isnan(performanceIndices[player]['performanceIndex']):
                         performanceIndices[player]['performanceIndex'] = 0
                 if 'positions' in indices:
-                    performanceIndices[player]['positions'] = {position: [playerReport['position'] for playerReport in player.playerReports if playerReport['tournament'] == self].count(position) for position in set([playerReport['position'] for playerReport in player.playerReports if playerReport['tournament'] == self])}
+                    performanceIndices[player]['positions'] = {position: [playerReport['position'] for playerReport in player.playerReports if playerReport['tournament'] == self and playerReport['gameweek'] <= upToGameweek].count(position) for position in set([playerReport['position'] for playerReport in player.playerReports if playerReport['tournament'] == self and playerReport['gameweek'] <= upToGameweek])}
         if sortBy is not None:
             sortedList = sorted(performanceIndices.items(), key = lambda x: x[1][sortBy], reverse = False if sortDir == 'asc' else True)
             performanceIndices = {player: performanceIndices for player, performanceIndices in sortedList}
@@ -63,12 +67,14 @@ class Tournament:
         indices = ['rating', 'games', 'goals', 'assists', 'performanceIndex'],
         positions = ['CF', 'WF', 'COM', 'WM', 'CM', 'CDM', 'WB', 'FB', 'CB'],
         clubs = None,
+        upToGameweek = None,
         sortBy = None,
         sortDir = None,
         limit = None
         ):
         allPerformanceIndices = self.getPerformanceIndices(
             indices,
+            upToGameweek,
             sortBy,
             sortDir,
             clubs

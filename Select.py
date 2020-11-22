@@ -1,3 +1,3 @@
 from collections import namedtuple
 
-Select = namedtuple('Select', ['player', 'position'])
+Select = namedtuple('Select', ['player', 'position', 'rating'])

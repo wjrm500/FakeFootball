@@ -13,6 +13,9 @@ class Fixture:
     
     def setDate(self, date):
         self.date = date
+    
+    def setGameweek(self, gameweek):
+        self.gameweek = gameweek
 
     def play(self):
         self.match = Match(self, self.tournament, self.date, self.clubX, self.clubY)

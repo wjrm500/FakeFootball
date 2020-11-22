@@ -2,302 +2,354 @@ systemConfig = {
     'numSystems': 4,
     'numLeaguesPerSystem': 1,
     'numClubsPerLeague': 10,
-    'numPlayersPerClub': 20
-}
-
-playerConfig = {
-    'age': {
-        'min': 15,
-        'max': 40
-    },
-    'growthSpeed': {
-        'incline': {
-            'mean': 0.75,
-            'stDev': 0.1,
-            'min': 0.25,
-            'max': 1.25
-        },
-        'decline': {
-            'mean': 0.875,
-            'stDev': 0.1,
-            'min': 0.375,
-            'max': 1.375
-        }
-    },
-    'peakAge': {
-        'mean': 27,
-        'stDev': 2,
-        'min': 22,
-        'max': 32
-    },
-    'peakRating': {
-        'mean': (100 / 3 *  2),
-        'stDev': 10,
-        'min': 20,
-        'max': 100
-    },
-    'positions': {
-        'CF': {
-            'realName': "Centre Forward",
-            'skillDistribution': {
-                'offence': 1.52,
-                'spark': 1.06,
-                'technique': 1.03,
-                'defence': 0.69,
-                'authority': 0.95,
-                'fitness': 0.75
-            }
-        },
-        'WF': {
-            'realName': "Wing Forward",
-            'skillDistribution': {
-                'offence': 1.19,
-                'spark': 1.35,
-                'technique': 1.08,
-                'defence': 0.75,
-                'authority': 0.69,
-                'fitness': 0.94
-            }
-        },
-        'COM': {
-            'realName': "Centre Offensive Midfielder",
-            'skillDistribution': {
-                'offence': 1.05,
-                'spark': 1.42,
-                'technique': 1.48,
-                'defence': 0.66,
-                'authority': 0.73,
-                'fitness': 0.66
-            }
-        },
-        'WM': {
-            'realName': "Wing Midfielder",
-            'skillDistribution': {
-                'offence': 1.06,
-                'spark': 1.24,
-                'technique': 1.06,
-                'defence': 0.81,
-                'authority': 0.76,
-                'fitness': 1.07
-            }
-        },
-        'CM': {
-            'realName': "Centre Midfielder",
-            'skillDistribution': {
-                'offence': 0.87,
-                'spark': 0.92,
-                'technique': 1.04,
-                'defence': 0.86,
-                'authority': 1.28,
-                'fitness': 1.03
-            }
-        },
-        'CDM': {
-            'realName': "Centre Defensive Midfielder",
-            'skillDistribution': {
-                'offence': 0.73,
-                'spark': 0.84,
-                'technique': 0.95,
-                'defence': 1.10,
-                'authority': 1.23,
-                'fitness': 1.15
-            }
-        },
-        'WB': {
-            'realName': "Wing Back",
-            'skillDistribution': {
-                'offence': 0.75,
-                'spark': 1.03,
-                'technique': 1.03,
-                'defence': 1.05,
-                'authority': 0.68,
-                'fitness': 1.46
-            }
-        },
-        'FB': {
-            'realName': "Full Back",
-            'skillDistribution': {
-                'offence': 0.73,
-                'spark': 0.92,
-                'technique': 0.94,
-                'defence': 1.24,
-                'authority': 0.93,
-                'fitness': 1.24
-            }
-        },
-        'CB': {
-            'realName': "Centre Back",
-            'skillDistribution': {
-                'offence': 0.72,
-                'spark': 0.77,
-                'technique': 0.92,
-                'defence': 1.35,
-                'authority': 1.26,
-                'fitness': 0.98
-            }
-        }               
-        # 'CF': {'skillDistribution': {'offence': 1.52, 'spark': 1.06, 'technique': 1.03, 'defence': 0.69, 'authority': 0.95, 'fitness': 0.75}}, 
-        # 'WF': {'skillDistribution': {'offence': 1.19, 'spark': 1.35, 'technique': 1.08, 'defence': 0.75, 'authority': 0.69, 'fitness': 0.94}}, 
-        # 'COM': {'skillDistribution': {'offence': 1.05, 'spark': 1.42, 'technique': 1.48, 'defence': 0.66, 'authority': 0.73, 'fitness': 0.66}}, 
-        # 'WM': {'skillDistribution': {'offence': 1.06, 'spark': 1.24, 'technique': 1.06, 'defence': 0.81, 'authority': 0.76, 'fitness': 1.07}}, 
-        # 'CM': {'skillDistribution': {'offence': 0.87, 'spark': 0.92, 'technique': 0.97, 'defence': 0.86, 'authority': 1.35, 'fitness': 1.03}}, 
-        # 'CDM': {'skillDistribution': {'offence': 0.73, 'spark': 0.84, 'technique': 0.95, 'defence': 1.1, 'authority': 1.23, 'fitness': 1.15}}, 
-        # 'WB': {'skillDistribution': {'offence': 0.75, 'spark': 1.03, 'technique': 1.03, 'defence': 1.05, 'authority': 0.68, 'fitness': 1.46}}, 
-        # 'FB': {'skillDistribution': {'offence': 0.73, 'spark': 0.92, 'technique': 0.94, 'defence': 1.24, 'authority': 0.93, 'fitness': 1.24}}, 
-        # 'CB': {'skillDistribution': {'offence': 0.72, 'spark': 0.77, 'technique': 0.92, 'defence': 1.35, 'authority': 1.26, 'fitness': 0.98}}
-    },
-    'retirementThreshold': {
-        'mean': 0.80,
-        'stDev': 0.025,
-        'min': 0.70,
-        'max': 0.90
-    },
-    'skill': {
-        'distribution': {
-            'mean': 1,
-            'stDev': 0.375,
-            'min': 0.25,
-            'max': 1.75
-        },
-        'normalisingFactor': {
-            'mean': 0.25,
-            'stDev': 0.05,
-            'min': 0,
-            'max': 0.5
-        },
-        'skills': [
-            'offence', 
-            'spark', ### A player's ability to create something from nothing
-            'technique',
-            'defence',
-            'authority', ### How well a player is able to take control of a situation
-            'fitness'
-        ],
-        'transitions': [
-            {
-                'from': 'spark',
-                'to': 'authority',
-                'when': {
-                    'incline': True,
-                    'decline': True
-                },
-                'gradient': -0.01
-            },
-            {
-                'from': 'fitness',
-                'to': '',
-                'when': {
-                    'incline': False,
-                    'decline': True
-                },
-                'gradient': -0.015
-            }    
-        ]
+    'numPersonnelPerClub': {
+        'Manager': 1,
+        'Negotiator': 1,
+        'Physiotherapist': 1,
+        'Player': 20,
+        'Scout': 1
     }
 }
 
-managerConfig = {
-    'formations': {
-        '3-4-1-2': {
-            'popularity': 0.0105,
-            'personnel': {
-                'CF': 2, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
+personConfig = {
+    'manager': {
+        'age': {
+            'min': 30,
+            'max': 75
+        },
+        'formations': {
+            '3-4-1-2': {
+                'popularity': 0.0105,
+                'personnel': {
+                    'CF': 2, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
+                }
+            },
+            '3-4-2-1': {
+                'popularity': 0.0596,
+                'personnel': {
+                    'CF': 1, 'WF': 0, 'COM': 2, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
+                }
+            },
+            '3-4-3': {
+                'popularity': 0.0589,
+                'personnel': {
+                    'CF': 1, 'WF': 2, 'COM': 0, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
+                }
+            },
+            '3-5-1-1': {
+                'popularity': 0.0081,
+                'personnel': {
+                    'CF': 1, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
+                }
+            },
+            '3-5-2': {
+                'popularity': 0.0520,
+                'personnel': {
+                    'CF': 2, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
+                }
+            },
+            '4-1-3-2': {
+                'popularity': 0.0014,
+                'personnel': {
+                    'CF': 2, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 0, 'CDM': 1, 'WB': 0, 'FB': 2, 'CB': 2
+                }
+            },
+            '4-1-4-1': {
+                'popularity': 0.0826,
+                'personnel': {
+                    'CF': 1, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 2, 'CDM': 1, 'WB': 0, 'FB': 2, 'CB': 2
+                }
+            },
+            '4-2-2-2': {
+                'popularity': 0.0056,
+                'personnel': {
+                    'CF': 2, 'WF': 0, 'COM': 2, 'WM': 0, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+                }
+            },
+            '4-2-3-1': {
+                'popularity': 0.2121,
+                'personnel': {
+                    'CF': 1, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+                }
+            },
+            '4-3-1-2': {
+                'popularity': 0.0323,
+                'personnel': {
+                    'CF': 2, 'WF': 0, 'COM': 1, 'WM': 0, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+                }
+            },
+            '4-3-2-1': {
+                'popularity': 0.0019,
+                'personnel': {
+                    'CF': 1, 'WF': 0, 'COM': 2, 'WM': 0, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+                }
+            },
+            '4-3-3': {
+                'popularity': 0.1320,
+                'personnel': {
+                    'CF': 1, 'WF': 2, 'COM': 0, 'WM': 0, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+                }
+            },
+            '4-4-1-1': {
+                'popularity': 0.0602,
+                'personnel': {
+                    'CF': 1, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+                }
+            },
+            '4-4-2': {
+                'popularity': 0.2216,
+                'personnel': {
+                    'CF': 2, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+                }
+            },
+            '4-5-1': {
+                'popularity': 0.0101,
+                'personnel': {
+                    'CF': 1, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
+                }
+            },
+            '5-3-2': {
+                'popularity': 0.0273,
+                'personnel': {
+                    'CF': 2, 'WF': 0, 'COM': 0, 'WM': 0, 'CM': 3, 'CDM': 0, 'WB': 2, 'FB': 0, 'CB': 3
+                }
+            },
+            '5-4-1': {
+                'popularity': 0.0238,
+                'personnel': {
+                    'CF': 1, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 2, 'FB': 0, 'CB': 3
+                }
+            }
+        }
+    },
+    'negotiator': {
+        'age': {
+            'min': 25,
+            'max': 65
+        }
+    },
+    'physiotherapist': {
+        'age': {
+            'min': 25,
+            'max': 65
+        }
+    },
+    'player': {
+        'age': {
+            'min': 15,
+            'max': 40
+        },
+        'growthSpeed': {
+            'incline': {
+                'mean': 0.75,
+                'stDev': 0.1,
+                'min': 0.25,
+                'max': 1.25
+            },
+            'decline': {
+                'mean': 0.875,
+                'stDev': 0.1,
+                'min': 0.375,
+                'max': 1.375
             }
         },
-        '3-4-2-1': {
-            'popularity': 0.0596,
-            'personnel': {
-                'CF': 1, 'WF': 0, 'COM': 2, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
-            }
+        'peakAge': {
+            'mean': 27,
+            'stDev': 2,
+            'min': 22,
+            'max': 32
         },
-        '3-4-3': {
-            'popularity': 0.0589,
-            'personnel': {
-                'CF': 1, 'WF': 2, 'COM': 0, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
-            }
+        'peakRating': {
+            'mean': (100 / 3 *  2),
+            'stDev': 10,
+            'min': 20,
+            'max': 100
         },
-        '3-5-1-1': {
-            'popularity': 0.0081,
-            'personnel': {
-                'CF': 1, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
-            }
+        'positions': {
+            'CF': {
+                'realName': "Centre Forward",
+                'skillDistribution': {
+                    'offence': 1.52,
+                    'spark': 1.06,
+                    'technique': 1.03,
+                    'defence': 0.69,
+                    'authority': 0.95,
+                    'fitness': 0.75
+                }
+            },
+            'WF': {
+                'realName': "Wing Forward",
+                'skillDistribution': {
+                    'offence': 1.19,
+                    'spark': 1.35,
+                    'technique': 1.08,
+                    'defence': 0.75,
+                    'authority': 0.69,
+                    'fitness': 0.94
+                }
+            },
+            'COM': {
+                'realName': "Centre Offensive Midfielder",
+                'skillDistribution': {
+                    'offence': 1.05,
+                    'spark': 1.42,
+                    'technique': 1.48,
+                    'defence': 0.66,
+                    'authority': 0.73,
+                    'fitness': 0.66
+                }
+            },
+            'WM': {
+                'realName': "Wing Midfielder",
+                'skillDistribution': {
+                    'offence': 1.06,
+                    'spark': 1.24,
+                    'technique': 1.06,
+                    'defence': 0.81,
+                    'authority': 0.76,
+                    'fitness': 1.07
+                }
+            },
+            'CM': {
+                'realName': "Centre Midfielder",
+                'skillDistribution': {
+                    'offence': 0.87,
+                    'spark': 0.92,
+                    'technique': 1.04,
+                    'defence': 0.86,
+                    'authority': 1.28,
+                    'fitness': 1.03
+                }
+            },
+            'CDM': {
+                'realName': "Centre Defensive Midfielder",
+                'skillDistribution': {
+                    'offence': 0.73,
+                    'spark': 0.84,
+                    'technique': 0.95,
+                    'defence': 1.10,
+                    'authority': 1.23,
+                    'fitness': 1.15
+                }
+            },
+            'WB': {
+                'realName': "Wing Back",
+                'skillDistribution': {
+                    'offence': 0.75,
+                    'spark': 1.03,
+                    'technique': 1.03,
+                    'defence': 1.05,
+                    'authority': 0.68,
+                    'fitness': 1.46
+                }
+            },
+            'FB': {
+                'realName': "Full Back",
+                'skillDistribution': {
+                    'offence': 0.73,
+                    'spark': 0.92,
+                    'technique': 0.94,
+                    'defence': 1.24,
+                    'authority': 0.93,
+                    'fitness': 1.24
+                }
+            },
+            'CB': {
+                'realName': "Centre Back",
+                'skillDistribution': {
+                    'offence': 0.72,
+                    'spark': 0.77,
+                    'technique': 0.92,
+                    'defence': 1.35,
+                    'authority': 1.26,
+                    'fitness': 0.98
+                }
+            }               
+            # 'CF': {'skillDistribution': {'offence': 1.52, 'spark': 1.06, 'technique': 1.03, 'defence': 0.69, 'authority': 0.95, 'fitness': 0.75}}, 
+            # 'WF': {'skillDistribution': {'offence': 1.19, 'spark': 1.35, 'technique': 1.08, 'defence': 0.75, 'authority': 0.69, 'fitness': 0.94}}, 
+            # 'COM': {'skillDistribution': {'offence': 1.05, 'spark': 1.42, 'technique': 1.48, 'defence': 0.66, 'authority': 0.73, 'fitness': 0.66}}, 
+            # 'WM': {'skillDistribution': {'offence': 1.06, 'spark': 1.24, 'technique': 1.06, 'defence': 0.81, 'authority': 0.76, 'fitness': 1.07}}, 
+            # 'CM': {'skillDistribution': {'offence': 0.87, 'spark': 0.92, 'technique': 0.97, 'defence': 0.86, 'authority': 1.35, 'fitness': 1.03}}, 
+            # 'CDM': {'skillDistribution': {'offence': 0.73, 'spark': 0.84, 'technique': 0.95, 'defence': 1.1, 'authority': 1.23, 'fitness': 1.15}}, 
+            # 'WB': {'skillDistribution': {'offence': 0.75, 'spark': 1.03, 'technique': 1.03, 'defence': 1.05, 'authority': 0.68, 'fitness': 1.46}}, 
+            # 'FB': {'skillDistribution': {'offence': 0.73, 'spark': 0.92, 'technique': 0.94, 'defence': 1.24, 'authority': 0.93, 'fitness': 1.24}}, 
+            # 'CB': {'skillDistribution': {'offence': 0.72, 'spark': 0.77, 'technique': 0.92, 'defence': 1.35, 'authority': 1.26, 'fitness': 0.98}}
         },
-        '3-5-2': {
-            'popularity': 0.0520,
-            'personnel': {
-                'CF': 2, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 0, 'CB': 3
-            }
+        'retirementThreshold': {
+            'mean': 0.80,
+            'stDev': 0.025,
+            'min': 0.70,
+            'max': 0.90
         },
-        '4-1-3-2': {
-            'popularity': 0.0014,
-            'personnel': {
-                'CF': 2, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 0, 'CDM': 1, 'WB': 0, 'FB': 2, 'CB': 2
-            }
+        'skill': {
+            'distribution': {
+                'mean': 1,
+                'stDev': 0.375,
+                'min': 0.25,
+                'max': 1.75
+            },
+            'normalisingFactor': {
+                'mean': 0.5,
+                'stDev': 0.05,
+                'min': 0,
+                'max': 0.5
+            },
+            'skills': [
+                'offence', 
+                'spark', ### A player's ability to create something from nothing
+                'technique',
+                'defence',
+                'authority', ### How well a player is able to take control of a situation
+                'fitness'
+            ],
+            'transitions': [
+                {
+                    'from': 'spark',
+                    'to': 'authority',
+                    'when': {
+                        'incline': True,
+                        'decline': True
+                    },
+                    'gradient': -0.01
+                },
+                {
+                    'from': 'fitness',
+                    'to': '',
+                    'when': {
+                        'incline': False,
+                        'decline': True
+                    },
+                    'gradient': -0.015
+                }    
+            ]
+        }
+    },
+    'scout': {
+        'age': {
+            'min': 25,
+            'max': 65
         },
-        '4-1-4-1': {
-            'popularity': 0.0826,
-            'personnel': {
-                'CF': 1, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 2, 'CDM': 1, 'WB': 0, 'FB': 2, 'CB': 2
-            }
-        },
-        '4-2-2-2': {
-            'popularity': 0.0056,
-            'personnel': {
-                'CF': 2, 'WF': 0, 'COM': 2, 'WM': 0, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
-            }
-        },
-        '4-2-3-1': {
-            'popularity': 0.2121,
-            'personnel': {
-                'CF': 1, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
-            }
-        },
-        '4-3-1-2': {
-            'popularity': 0.0323,
-            'personnel': {
-                'CF': 2, 'WF': 0, 'COM': 1, 'WM': 0, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
-            }
-        },
-        '4-3-2-1': {
-            'popularity': 0.0019,
-            'personnel': {
-                'CF': 1, 'WF': 0, 'COM': 2, 'WM': 0, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
-            }
-        },
-        '4-3-3': {
-            'popularity': 0.1320,
-            'personnel': {
-                'CF': 1, 'WF': 2, 'COM': 0, 'WM': 0, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
-            }
-        },
-        '4-4-1-1': {
-            'popularity': 0.0602,
-            'personnel': {
-                'CF': 1, 'WF': 0, 'COM': 1, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
-            }
-        },
-        '4-4-2': {
-            'popularity': 0.2216,
-            'personnel': {
-                'CF': 2, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
-            }
-        },
-        '4-5-1': {
-            'popularity': 0.0101,
-            'personnel': {
-                'CF': 1, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 3, 'CDM': 0, 'WB': 0, 'FB': 2, 'CB': 2
-            }
-        },
-        '5-3-2': {
-            'popularity': 0.0273,
-            'personnel': {
-                'CF': 2, 'WF': 0, 'COM': 0, 'WM': 0, 'CM': 3, 'CDM': 0, 'WB': 2, 'FB': 0, 'CB': 3
-            }
-        },
-        '5-4-1': {
-            'popularity': 0.0238,
-            'personnel': {
-                'CF': 1, 'WF': 0, 'COM': 0, 'WM': 2, 'CM': 2, 'CDM': 0, 'WB': 2, 'FB': 0, 'CB': 3
+        'attributes': {
+            ### Affects how the quality of valuation changes as years into future grows
+            'foresight': {
+                'mu': 0.75,
+                'sg': 0.05,
+                'mn': 0.5,
+                'mx': 1
+            },
+            ### Affects how much the scout tends to upscale internal valuations away from reality
+            'internalBias': {
+                'mu': 1,
+                'sg': 0.1,
+                'mn': 0.75,
+                'mx': 1.25
+            },
+            ### Affects general valuation accuracy
+            'judgment': {
+                'mu': 0.5,
+                'sg': 0.15,
+                'mn': 0,
+                'mx': 1
             }
         }
     }
@@ -332,9 +384,9 @@ matchConfig = {
         }
     },
     'goalLikelihood': {
-        'CF': 1, 'WF': 1, 'COM': 1, 'WM': 1, 'CM': 1, 'CDM': 1, 'WB': 1, 'FB': 0.75, 'CB': 0.75
+        'CF': 1, 'WF': 0.975, 'COM': 0.95, 'WM': 0.95, 'CM': 0.925, 'CDM': 0.875, 'WB': 0.875, 'FB': 0.85, 'CB': 0.85
     },
     'assistLikelihood': {
-        'CF': 1, 'WF': 1, 'COM': 1, 'WM': 1, 'CM': 1, 'CDM': 1, 'WB': 1, 'FB': 1, 'CB': 0.75
+        'CF': 0.95, 'WF': 0.975, 'COM': 1, 'WM': 1, 'CM': 0.95, 'CDM': 0.9, 'WB': 0.95, 'FB': 0.925, 'CB': 0.08
     },
 }

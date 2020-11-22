@@ -24,6 +24,18 @@ the actual generation of the score and the player report generation
 
 Dynamically work out when national cup should finish and schedule fixtures back from this point, rather than forward from start of year
 
+Use deque rotate to schedule round robin e.g. have deques for home slots and away slots, rotate one with -1 as argument and the other with 1 as argument,
+but remember to always insert first value into home slots. So maybe something like...
+from collections import deque
+homeSlots = deque([1, 2, 3, 4, 5, 6, 7, 8, 9])
+awaySlots = deque([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20])
+firstFixtures = zip([homeSlots, awaySlots])
+homeSlots.remove(1)
+homeSlots.rotate(1)
+awaySlots.rotate(-1)
+homeSlots.insert(0, 1)
+secondFixtures= zip([homeSlots, awaySlots])
+
 
 Top ranked teams in group stage drawn against second ranked teams
 Inferior Universal Tournament
@@ -31,3 +43,20 @@ Inferior Universal Tournament
 Group stage player statistics not included in overall tournament statistics
 
 Managers should be able to select different formation
+
+Player predicted goals and predicted assists should be based on team predicted goals for and not actual goals for if this is not the case
+Square root offensive and defensive boosts?
+
+Reduce assist negative when players have scored? Maybe not
+
+Bring base ratings closer together and provide points for result
+
+
+Have changed goalscorers / assisters in match report, make sure all fine
+Check preliminary stage in universal tournaments working
+
+
+I should remove getPlayerGoalLikelihood and getPlayerAssistLikelihood in PlayerReportEngine and replace within getPlayerReport with e.g. Team.goalFactors[player], after passing
+team as a parameter into that function. See version in ShallowSim folder for example
+
+Changes to Manager and Team

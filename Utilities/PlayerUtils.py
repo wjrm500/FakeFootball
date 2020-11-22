@@ -84,8 +84,8 @@ def plotPlayer(player, axes, config):
 
         ### Add rating projection to plot
         if projectionOn and player.age != player.peakAge:
-            projectedSkillDistribution = player.setSkillDistribution(player.peakAge)
-            projectedPlayerRating = player.setRating(player.peakAge)
+            projectedSkillDistribution = player.getSkillDistribution(player.peakAge)
+            projectedPlayerRating = player.getRating(age = player.peakAge)
             projectedPoints = {}
             for j, (skill, projectedValue) in enumerate(projectedSkillDistribution.items()):
                 if scaleForOverallRatingOn:
@@ -139,10 +139,10 @@ def plotPlayer(player, axes, config):
         axes.text(
             -0.975 * frameSize,
             0.95 * frameSize,
-            player.properName,
+            '{}\n{}'.format(player.name[0], player.name[1]),
             horizontalalignment = 'left',
             verticalalignment = 'top',
-            fontdict = (lambda a, b: a.update(b) or a)(copy.deepcopy(cornerFontDict), {'size': 14})
+            fontdict = (lambda a, b: a.update(b) or a)(copy.deepcopy(cornerFontDict), {'size': 10})
         )
         axes.text(
             0.975 * frameSize,
@@ -160,7 +160,8 @@ def plotPlayer(player, axes, config):
             verticalalignment = 'bottom',
             fontdict = cornerFontDict
         )
-        poSuDict = player.positionSuitabilities
+        poSuDict = player.getPositionSuitabilities()
+        bestPosition = player.getBestPosition()
         if not positionTextRotated:
             positionText = ''
             for position in sorted(poSuDict, key = poSuDict.get, reverse = True):
@@ -172,8 +173,8 @@ def plotPlayer(player, axes, config):
                     )
             if positionText == '':
                 positionText = '{0}: {1:.1%}'.format(
-                    player.config['positions'][player.bestPosition]['realName'],
-                    poSuDict[player.bestPosition]
+                    player.config['positions'][bestPosition]['realName'],
+                    poSuDict[bestPosition]
                 )
             else:
                 positionText = positionText.rstrip()
@@ -186,7 +187,7 @@ def plotPlayer(player, axes, config):
                 fontdict = cornerFontDict
             )
         else:
-            realPositionName = player.config['positions'][player.bestPosition]['realName']
+            realPositionName = player.config['positions'][bestPosition]['realName']
             positionText = realPositionName.replace(' ', '\n')
             axes.text(
                 -0.975 * frameSize,

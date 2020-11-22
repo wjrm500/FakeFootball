@@ -22,7 +22,7 @@ class Scheduler:
             if currentDate.weekday() == weekday:
                 for game in schedule[gameweek]:
                     clubX, clubY = game['home'], game['away']
-                    cls.scheduleFixture(currentDate, league, clubX, clubY)
+                    cls.scheduleFixture(currentDate, gameweek, league, clubX, clubY)
                 gameweek += 1
             currentDate += timedelta(days = 1) 
 
@@ -40,6 +40,7 @@ class Scheduler:
                 if alternator == "On":
                     for fixture in systemKnockout.schedule[gameweek]:
                         fixture.setDate(currentDate)
+                        fixture.setGameweek(gameweek)
                         systemKnockout.fixtures.append(fixture)
                     gameweek += 1
             currentDate += timedelta(days = 1)
@@ -104,6 +105,7 @@ class Scheduler:
                 if alternator == "On":
                     for fixture in universalTournament.schedule[gameweek]:
                         fixture.setDate(currentDate)
+                        fixture.setGameweek(gameweek)
                         universalTournament.fixtures.append(fixture)
                     gameweek += 1
             currentDate += timedelta(days = 1)
@@ -113,10 +115,11 @@ class Scheduler:
         cls.scheduleSuperiorUniversalTournamentFixtures(year, universalTournament)
 
     @classmethod
-    def scheduleFixture(cls, date, tournament, clubX, clubY):
+    def scheduleFixture(cls, date, gameweek, tournament, clubX, clubY):
         if not hasattr(tournament, 'fixtures'):
             tournament.fixtures = []
         fixture = Fixture(tournament, date, clubX, clubY)
+        fixture.setGameweek(gameweek)
         tournament.fixtures.append(fixture)
     
     @classmethod

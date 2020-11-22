@@ -39,6 +39,6 @@ class Group(League):
                             fixture.clubY = newClub
                         fixture.clubs[replacementIndex] = newClub
                         break
-        self.leagueTable[newClub] = {}
+        self.leagueTables[0][newClub] = {}
         for stat in ['GP', 'W', 'D', 'L', 'GF', 'GA', 'GD', 'Pts']:
-            self.leagueTable[newClub][stat] = 0
+            self.leagueTables[0][newClub][stat] = 0
